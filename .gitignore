@@ -1,3 +1,4 @@
 **/build/**
 *.a
 *.so
+.vscode/settings.json
