@@ -1,0 +1,24 @@
+bool BBOX_intersect(vec4 a, vec4 b)
+{
+     return !(b.x > a.z
+        || b.z < a.x
+        || b.y > a.w
+        || b.w < a.y);
+}
+vec4 BBOX_overlap(vec4 a, vec4 b)
+{
+    vec4 r = vec4(0);
+    r.xy = max(a.xy,b.xy);
+    r.zw = min(a.zw,b.zw);
+    if(r.x > r.z || r.y > r.w)return vec4(-1);
+    return r;
+}
+
+float BBOX_size(vec4 bbox)
+{
+    return max((bbox.x-bbox.z)*(bbox.y-bbox.w),0.);
+}
+float BBOX_percent(vec4 a, vec4 b)
+{
+    return BBOX_size(a)/BBOX_size(b);
+}

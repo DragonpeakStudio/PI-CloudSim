@@ -6,12 +6,13 @@
 #include <SDL2/SDL.h>
 #include <stdexcept>
 #include "inputmanager.h"
+#include "renderer.h"
 
 namespace eng
 {
-
 struct EngineConfig
 {
+	rndr::RendererConfig renderConfig;
 };  
 class Engine
 {
@@ -31,6 +32,7 @@ class Engine
 		void mainLoop();
 		EngineState m_state = WAITING;
 		InputManager m_inputManager;
+		rndr::Renderer m_renderer;
 };
 }
 #endif
