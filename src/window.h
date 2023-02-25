@@ -28,5 +28,6 @@ class Window
         std::string m_windowName;
 
 };
+
 }
 #endif
