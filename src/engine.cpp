@@ -1,7 +1,7 @@
 #include "engine.h"
 namespace eng
 {
-Engine::Engine(EngineConfig &&config) :  m_inputManager(this), m_renderer(config.renderConfig)
+Engine::Engine(EngineConfig &&config) :  m_inputManager(this), m_renderer(config.renderConfig, this)
 {
 	m_inputManager.addKeybindCallback(SDL_SCANCODE_ESCAPE, [this](){exit();});
 }

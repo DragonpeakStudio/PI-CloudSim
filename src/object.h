@@ -12,6 +12,7 @@ class Object//this doesn't need to be fast, we will only have ~3-4 ever
         virtual void draw(rndr::Renderer *renderer) = 0;
         virtual void update(double delta, Engine *engine) = 0;
         virtual void onAdd(Engine *engine){m_engine = engine;}
+        virtual void drawUI(){}
     protected:
         Engine *m_engine = nullptr; 
 };

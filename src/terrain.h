@@ -4,6 +4,7 @@
 #pragma once
 #include <memory>
 #include <glm/glm.hpp>
+#include <glm/gtx/scalar_multiplication.hpp>
 #include <vector>
 #include "texture2d.h"
 #include "computeshaderprogram.h"
@@ -23,6 +24,7 @@ class Terrain : public eng::Object
         void generate();
         virtual void draw(eng::rndr::Renderer *renderer) override;
         virtual void update([[maybe_unused]]double delta, [[maybe_unused]]eng::Engine *engine) override{};
+        virtual void drawUI() override;
     private:
         struct Vert
         {
@@ -45,6 +47,10 @@ class Terrain : public eng::Object
         GLuint m_vbo = 0;
         GLuint m_ebo = 0;
         GLuint m_vao = 0;
+        glm::vec3 m_sunCol = glm::vec3(1,.9,.85);
+        glm::vec3 m_ambientCol = glm::vec3(.2,.3,.6);
+        glm::vec2 m_sunSpherical = glm::vec2(.5, 1.);
+
 
 
 

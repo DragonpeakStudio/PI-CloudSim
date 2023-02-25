@@ -85,12 +85,25 @@ void Terrain::draw(eng::rndr::Renderer *renderer)
     m_drawShader->setUniform("view", renderer->viewMat());
     m_drawShader->setUniform("projection", renderer->projMat());
     m_drawShader->setUniform("colourMap", 0);
-    m_drawShader->setUniform("lightDir", glm::normalize(glm::vec3(0, .5, 1.)));
-    m_drawShader->setUniform("lightCol", glm::vec3(1,.9,.85)*4.5);
-    m_drawShader->setUniform("ambientCol", glm::vec3(.2,.3,.6)*.5);
+    glm::vec3 sunDir = glm::vec3(sin(m_sunSpherical.x)*cos(m_sunSpherical.y), sin(m_sunSpherical.x)*sin(m_sunSpherical.y), cos(m_sunSpherical.x));
+    m_drawShader->setUniform("lightDir", glm::normalize(sunDir));
+    m_drawShader->setUniform("lightCol", m_sunCol*5.f);
+    m_drawShader->setUniform("ambientCol", m_ambientCol);
 
     m_colMap->bind(GL_TEXTURE0);
     glDrawElements(GL_TRIANGLES, m_elements.size(), GL_UNSIGNED_INT, 0);
     glUseProgram(0);
     glBindVertexArray(0);
+}
+
+void Terrain::drawUI()
+{
+    ImGui::Begin("Terrain");
+
+    ImGui::ColorEdit3("Sun Colour", &m_sunCol.x);
+    ImGui::ColorEdit3("Ambient Colour", &m_ambientCol.x);
+    ImGui::SliderFloat2("Sun Dir", &m_sunSpherical.x, -3.14, 3.14);
+
+
+	ImGui::End();
 }
