@@ -2,7 +2,8 @@
 #define COMPUTESHADERPROGRAM_H
 #include "shaderprogram.h"
 
-
+namespace eng::rndr
+{
 class ComputeShaderProgram : public ShaderProgram
 {
     public:
@@ -13,5 +14,5 @@ class ComputeShaderProgram : public ShaderProgram
     private:
         std::string m_path;
 };
-
+}
 #endif // COMPUTESHADERPROGRAM_H

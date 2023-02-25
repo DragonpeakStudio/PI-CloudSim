@@ -1,5 +1,6 @@
 #include "computeshaderprogram.h"
-
+namespace eng::rndr
+{
 ComputeShaderProgram::ComputeShaderProgram(const std::string path) : m_path(path)
 {
 
@@ -26,6 +27,9 @@ bool ComputeShaderProgram::load()
 
 void ComputeShaderProgram::dispatch(glm::uvec3 workGroups)
 {
-    Bind();
+    bind();
     glDispatchCompute(workGroups.x, workGroups.y, workGroups.z);
+	glUseProgram(0);
+    
+}
 }

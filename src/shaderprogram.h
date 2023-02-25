@@ -10,7 +10,6 @@
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 
-#include "resourcemanager.h"
 namespace eng::rndr
 {
 class ShaderProgram

@@ -56,7 +56,7 @@ GLuint ShaderProgram::LoadShader(const std::string &code, GLenum type)
 std::string ShaderProgram::ProcessShaderCode(std::string code)
 {
     static const std::string incl = "#include";
-    std::map<std::string, bool> included;
+    std::unordered_map<std::string, bool> included;
     size_t pos = code.find(incl);
     while (pos != std::string::npos)
     {

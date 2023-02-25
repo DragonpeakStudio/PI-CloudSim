@@ -12,6 +12,14 @@ Window::~Window()
 {
     SDL_DestroyWindow(m_window);
 }
+int Window::height() const
+{
+    return m_height;
+}
+int Window::width() const
+{
+    return m_width;
+}
 void Window::init()
 {
 	m_window = SDL_CreateWindow(m_windowName.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, m_width, m_height, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);

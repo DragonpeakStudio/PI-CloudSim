@@ -15,12 +15,14 @@ InputManager::~InputManager()
 }
 void InputManager::processEvents()
 {
-    glm::ivec2 mousePos;
-    SDL_GetMouseState(&mousePos.x, &mousePos.y);
 
     SDL_Event event;
     while(SDL_PollEvent(&event))
     {
+        for(auto &i : m_events[(SDL_EventType)event.type])
+        {
+            i(event);
+        }
         switch (event.type)
         {
             case SDL_WINDOWEVENT:
@@ -36,6 +38,7 @@ void InputManager::processEvents()
                 }
                 break;
             case SDL_KEYDOWN:
+                if(m_keybinds.find(event.key.keysym.scancode)!=m_keybinds.end())m_keybinds[event.key.keysym.scancode]();
                 break;
 
             default:
@@ -56,5 +59,14 @@ bool InputManager::getKeybindState(SDL_Scancode key)
 {
     const Uint8 *keyStates = SDL_GetKeyboardState(nullptr);
     return keyStates[key];
+}
+
+void InputManager::addEventCallback(SDL_EventType type, std::function<void(const SDL_Event&)> callback)
+{
+    if(m_events.find(type)==m_events.end())
+    {
+        m_events[type] = std::vector<std::function<void(const SDL_Event&)>>();
+    }
+    m_events[type].push_back(callback);
 }
 }

@@ -17,6 +17,10 @@ class Window
         void init();
 
         SDL_Window *window() const;
+
+        int height() const;
+        int width() const;
+
     
     private:
         SDL_Window *m_window;
