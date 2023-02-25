@@ -15,7 +15,7 @@ void eng::rndr::Camera::draw(rndr::Renderer *renderer)
 {
     renderer->setViewMat(getView());
     renderer->setProjMat(getProjection());
-
+    m_isUiShown = renderer->isUiShown();//this is a total bodge to allow disabling mouse motion when ui is off
 }
 void eng::rndr::Camera::update(double delta, Engine *engine)
 {
@@ -40,7 +40,7 @@ void eng::rndr::Camera::onAdd(Engine *engine)
 }
 void eng::rndr::Camera::mouseMotion(const SDL_Event &event)
 {
-    m_dir = glm::angleAxis(-event.motion.yrel*m_mouseSpeed, glm::cross(m_dir, glm::vec3(0,0,1)))*glm::quat(glm::vec3(0, 0, -event.motion.xrel*m_mouseSpeed))*m_dir;
+    if(!m_isUiShown)m_dir = glm::angleAxis(-event.motion.yrel*m_mouseSpeed, glm::cross(m_dir, glm::vec3(0,0,1)))*glm::quat(glm::vec3(0, 0, -event.motion.xrel*m_mouseSpeed))*m_dir;
 
 }
 glm::mat4 eng::rndr::Camera::getProjection() const

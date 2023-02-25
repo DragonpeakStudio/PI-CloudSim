@@ -32,7 +32,7 @@ Renderer::Renderer(RendererConfig config, Engine *eng) : m_window(config.width, 
 	glDebugMessageCallback( glMessageCallback, 0 );
 	glViewport(0, 0, m_window.width(), m_window.height());
 
-	m_engine->inputManager().addKeybindCallback(SDL_SCANCODE_1, [&isUiShown = m_isUiShown](){
+	m_engine->inputManager().addKeybindCallback(SDL_SCANCODE_I, [&isUiShown = m_isUiShown](){
 		isUiShown = !isUiShown;
 		SDL_SetRelativeMouseMode((SDL_bool)!isUiShown);
 		
@@ -109,6 +109,10 @@ glm::mat4 Renderer::projMat() const
 void Renderer::setProjMat(const glm::mat4 &projMat)
 {
     m_projMat = projMat;
+}
+bool Renderer::isUiShown() const
+{
+    return m_isUiShown;
 }
 void Renderer::addDrawable(std::shared_ptr<Object> obj)
 {

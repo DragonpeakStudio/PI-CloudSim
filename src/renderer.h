@@ -45,6 +45,8 @@ class Renderer
         void setProjMat(const glm::mat4 &projMat);
         glm::mat4 viewMat() const;
         void setViewMat(glm::mat4 viewMat);
+
+        bool isUiShown() const;
     
     private:
         void drawUI();

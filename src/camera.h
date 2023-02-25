@@ -36,6 +36,7 @@ class Camera : public Object
 
         float m_moveSpeed = 100.;
         float m_mouseSpeed = .01;
+        bool m_isUiShown = false;
 };
 }
 
