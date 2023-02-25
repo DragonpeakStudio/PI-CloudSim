@@ -58,7 +58,7 @@ void Terrain::generate()
     glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-    //std::cerr << "Terrain::generate " << GetGLErrorStr(glGetError()) << std::endl;
+    //std::cerr << "Terrain::generate " << getGLErrorStr(glGetError()) << std::endl;
 
 
     m_terrainGenShader->bind();

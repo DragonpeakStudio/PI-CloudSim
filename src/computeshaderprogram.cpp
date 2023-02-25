@@ -8,6 +8,8 @@ ComputeShaderProgram::ComputeShaderProgram(const std::string path) : m_path(path
 
 bool ComputeShaderProgram::load()
 {
+    if(m_isLoaded)return true;
+    m_isLoaded = true;
     m_program = glCreateProgram();
     GLuint shaderId = LoadShader(ReadShaderFile(m_path), GL_COMPUTE_SHADER);
     glAttachShader(m_program, shaderId);
@@ -19,6 +21,8 @@ bool ComputeShaderProgram::load()
     {
         glGetShaderInfoLog(m_program, 512, NULL, log);
         std::cerr << "Unable to compile shader: " << log << std::endl;
+        m_isLoaded = false;
+
         return false;
     }
     glDeleteShader(shaderId);

@@ -19,7 +19,7 @@
 #define GLUTIL_H
 #include <string>
 #include "GL/glew.h"
-inline std::string GetGLErrorStr(GLenum err)
+inline std::string getGLErrorStr(GLenum err)
 {
 	switch (err)
 	{
@@ -45,7 +45,7 @@ inline std::string GetGLErrorStr(GLenum err)
 }
 
 void GLAPIENTRY
-inline GLMessageCallback( [[maybe_unused]]GLenum source,
+inline glMessageCallback( [[maybe_unused]]GLenum source,
                  [[maybe_unused]]GLenum type,
                  [[maybe_unused]]GLuint id,
                  [[maybe_unused]]GLenum severity,

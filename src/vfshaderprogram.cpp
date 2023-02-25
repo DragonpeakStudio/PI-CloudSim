@@ -9,6 +9,8 @@ VFShaderProgram::VFShaderProgram(const std::string vertPath, const std::string f
 }
 bool VFShaderProgram::load()
 {
+    if(m_isLoaded)return true;
+    m_isLoaded = true;
     m_program = glCreateProgram();
 	GLuint vertId = LoadShader(ReadShaderFile(m_vertPath), GL_VERTEX_SHADER);
     GLuint fragId = LoadShader(ReadShaderFile(m_fragPath), GL_FRAGMENT_SHADER);
@@ -22,6 +24,7 @@ bool VFShaderProgram::load()
     {
         glGetShaderInfoLog(m_program, 512, NULL, log);
         std::cerr << "Unable to compile shader: " << log << std::endl;
+        m_isLoaded = false;
         return false;
     }
     glDeleteShader(fragId);

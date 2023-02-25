@@ -80,10 +80,6 @@ int Texture2d::getHeight() const
 }
 void Texture2d::fromData(void *data)
 {
-    if(data == nullptr )
-    {
-        throw("Texture2d::fromData - Invalid data");
-    }
     glGenTextures(1, &m_id);
     glBindTexture(GL_TEXTURE_2D, m_id);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, m_info.wrapS);

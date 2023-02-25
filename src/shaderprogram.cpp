@@ -27,7 +27,7 @@ std::string ShaderProgram::ReadShaderFile(const std::string &path)
         code = codeStream.str();
         
     }
-    catch (std::ifstream::failure e)
+    catch (std::ifstream::failure &e)
     {
         std::cerr << "Unable to Load Shader File: " << path << std::endl;
     }
@@ -87,6 +87,10 @@ std::string ShaderProgram::ProcessShaderCode(std::string code)
 void ShaderProgram::setUniform(const std::string name, GLint data)
 {
     glUniform1i(glGetUniformLocation(m_program, name.c_str()), data);
+}
+bool ShaderProgram::isLoaded() const
+{
+    return m_isLoaded;
 }
 void ShaderProgram::setUniform(const std::string name, glm::ivec2 data)
 {

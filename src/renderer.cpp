@@ -4,7 +4,7 @@
 #include "engine.h"
 namespace eng::rndr
 {
-Renderer::Renderer(RendererConfig config, Engine *eng) : m_window(config.width, config.height, config.windowName), m_engine(eng)
+Renderer::Renderer(RendererConfig config, Engine *eng) : m_window(config.width, config.height, config.windowName), m_engine(eng), m_frameBuffer(true, std::make_unique<VFShaderProgram>(config.fsqVertShader, config.fsqFragShader))
 {
     if(SDL_Init(SDL_INIT_EVERYTHING)==-1)
 	{
@@ -28,9 +28,8 @@ Renderer::Renderer(RendererConfig config, Engine *eng) : m_window(config.width, 
 	SDL_SetRelativeMouseMode(SDL_TRUE);
 	SDL_GL_SetSwapInterval(1);
 	glEnable(GL_CULL_FACE);  
-	glEnable(GL_DEPTH_TEST);
-	// glEnable( GL_DEBUG_OUTPUT );
-	// glDebugMessageCallback( GLMessageCallback, 0 );
+	glEnable( GL_DEBUG_OUTPUT );
+	glDebugMessageCallback( glMessageCallback, 0 );
 	glViewport(0, 0, m_window.width(), m_window.height());
 
 	m_engine->inputManager().addKeybindCallback(SDL_SCANCODE_1, [&isUiShown = m_isUiShown](){
@@ -48,6 +47,8 @@ Renderer::Renderer(RendererConfig config, Engine *eng) : m_window(config.width, 
 	ImGui_ImplSDL2_InitForOpenGL(m_window.window(), m_glContext);
 	ImGui_ImplOpenGL3_Init("#version 150");
 
+	m_frameBuffer.init(m_window.width(), m_window.height(), GL_RGBA);
+
 }
 
 Renderer::~Renderer()
@@ -62,7 +63,9 @@ void Renderer::dispatchFrame()
 	ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplSDL2_NewFrame();
     ImGui::NewFrame();
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	m_frameBuffer.clear();
+    glClear(GL_COLOR_BUFFER_BIT);
+
 	if(m_isUiShown)
 	{
 		drawUI();
@@ -71,10 +74,14 @@ void Renderer::dispatchFrame()
 			i->drawUI();
 		}
 	}
+    m_frameBuffer.bind();
+
 	for(auto & i : m_drawables)
 	{
 		i->draw(this);
 	}
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    m_frameBuffer.draw();
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 	SDL_GL_SwapWindow(m_window.window());

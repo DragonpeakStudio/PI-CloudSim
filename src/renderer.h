@@ -15,9 +15,11 @@
 #include "glutil.h"
 #include "camera.h"
 #include "inputmanager.h"
+#include "vfshaderprogram.h"
 #include "imgui.h"
 #include "backends/imgui_impl_sdl.h"
 #include "backends/imgui_impl_opengl3.h"
+#include "framebuffer.h"
 namespace eng{class Engine;}
 
 namespace eng::rndr
@@ -27,6 +29,9 @@ struct RendererConfig
 	std::string windowName;
 	int width, height;
 	int glMajorVersion, glMinorVersion;
+    std::string fsqVertShader = "resources/shaders/basic.vert";
+    std::string fsqFragShader = "resources/shaders/postprocess.frag";
+
 };
 class Renderer
 {
@@ -51,6 +56,8 @@ class Renderer
         ImGuiIO m_imguiIo;
         Engine *m_engine;
         bool m_isUiShown = false;
+        FrameBuffer m_frameBuffer;
+
 
 };
 }

@@ -16,8 +16,8 @@ class ShaderProgram
 {
 	public:
 
-		~ShaderProgram();
-		virtual bool load() = 0;
+		virtual ~ShaderProgram();
+		virtual bool load(){m_isLoaded = true;return true;};
 		virtual void bind();
 
 		void setUniform(const std::string name, GLfloat data);
@@ -39,10 +39,13 @@ class ShaderProgram
         void setUniform(const std::string name, glm::mat3 data);
         void setUniform(const std::string name, glm::mat4 data);
 
+        bool isLoaded() const;
+
 	protected:
 		std::string ReadShaderFile(const std::string& path);
         std::string ProcessShaderCode(std::string code);
         GLuint LoadShader(const std::string& code, GLenum type);
+        bool m_isLoaded = false;
 		GLuint m_program = 0;
 
 };
