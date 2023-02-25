@@ -21,23 +21,19 @@ void Terrain::generate()
         for(unsigned int y = 0; y < m_sizeY; y++)
         {
             m_vertexGrid.push_back(Vert{glm::vec4((float)x - (float)m_sizeX/2., (float)y - (float)m_sizeY/2., 0., 1.), glm::vec4(0,0,0,0), glm::vec4((float)x/(float)m_sizeX, (float)y/(float)m_sizeY,0,0)});
-            
+            if(x < m_sizeX-1 && y < m_sizeY-1)
+            {
+                m_elements.push_back(x+y*m_sizeX);
+                m_elements.push_back(x+(y+1)*m_sizeX);
+                m_elements.push_back((x+1)+y*m_sizeX);
+
+                m_elements.push_back(x+(y+1)*m_sizeX);
+                m_elements.push_back((x+1)+(y+1)*m_sizeX);
+                m_elements.push_back((x+1)+y*m_sizeX);
+            }
+
         }
 
-    }
-    for(unsigned int x = 0; x < m_sizeX-1; x++)
-    {
-        for(unsigned int y = 0; y < m_sizeY-1; y++)
-        {
-            m_elements.push_back(x+y*m_sizeX);
-            m_elements.push_back(x+(y+1)*m_sizeX);
-            m_elements.push_back((x+1)+y*m_sizeX);
-
-
-            m_elements.push_back(x+(y+1)*m_sizeX);
-            m_elements.push_back((x+1)+(y+1)*m_sizeX);
-            m_elements.push_back((x+1)+y*m_sizeX);
-        }
     }
 
     glGenVertexArrays(1, &m_vao);

@@ -65,6 +65,7 @@ void Renderer::dispatchFrame()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	if(m_isUiShown)
 	{
+		drawUI();
 		for(auto & i : m_drawables)
 		{
 			i->drawUI();
@@ -86,6 +87,13 @@ glm::mat4 Renderer::viewMat() const
 void Renderer::setViewMat(glm::mat4 viewMat)
 {
     m_viewMat = viewMat;
+}
+void Renderer::drawUI()
+{
+	ImGui::Begin("status");
+	ImGui::Text("Delta : %f", m_engine->delta());
+	ImGui::Text("FPS : %f", 1.f/m_engine->delta());
+	ImGui::End();
 }
 glm::mat4 Renderer::projMat() const
 {

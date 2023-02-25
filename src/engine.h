@@ -33,6 +33,7 @@ class Engine
 		void exit();
 		void addObject(std::shared_ptr<Object> obj);
 		InputManager &inputManager();
+		float delta() const;
 	private:
 		void mainLoop();
 		void update(double delta);
@@ -40,6 +41,7 @@ class Engine
 		InputManager m_inputManager;
 		rndr::Renderer m_renderer;
 		std::vector<std::shared_ptr<Object>> m_objects;
+		float m_delta = 0;
 
 };
 }

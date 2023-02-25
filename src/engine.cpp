@@ -26,6 +26,10 @@ void Engine::exit()
 {
 	m_state = STOPPED;
 }
+float Engine::delta() const
+{
+	return m_delta;
+}
 void Engine::addObject(std::shared_ptr<Object> obj)
 {
     m_objects.push_back(obj);
@@ -39,10 +43,10 @@ void Engine::mainLoop()
     {
         std::chrono::duration<double> time = std::chrono::high_resolution_clock::now()-e;
 		e = std::chrono::high_resolution_clock::now();
-        double delta = time.count();
-        std::cerr << "FPS: " << 1./delta << " | Delta: " << delta << std::endl;
+        m_delta = time.count();
+        //std::cerr << "FPS: " << 1./m_delta << " | Delta: " << m_delta << std::endl;
         m_inputManager.processEvents();
-        update(delta);
+        update(m_delta);
         m_renderer.dispatchFrame();
     }
 }

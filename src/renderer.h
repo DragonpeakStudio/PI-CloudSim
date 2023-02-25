@@ -42,6 +42,7 @@ class Renderer
         void setViewMat(glm::mat4 viewMat);
     
     private:
+        void drawUI();
         Window m_window;
         SDL_GLContext m_glContext;
         std::vector<std::shared_ptr<Object>> m_drawables;
