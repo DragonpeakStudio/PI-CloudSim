@@ -29,8 +29,8 @@ struct RendererConfig
 	std::string windowName;
 	int width, height;
 	int glMajorVersion, glMinorVersion;
-    std::string fsqVertShader = "resources/shaders/basic.vert";
-    std::string fsqFragShader = "resources/shaders/postprocess.frag";
+    std::string fsqVertShader = "../resources/shaders/basic.vert";
+    std::string fsqFragShader = "../resources/shaders/postprocess.frag";
 
 };
 class Renderer

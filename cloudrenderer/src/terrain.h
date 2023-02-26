@@ -19,8 +19,8 @@ class Terrain : public eng::Object
         std::unique_ptr<eng::rndr::Texture2d> colMap,
         unsigned int sizeX,
         unsigned int sizeY,
-        std::unique_ptr<eng::rndr::VFShaderProgram> drawShader = std::make_unique<eng::rndr::VFShaderProgram>("resources/shaders/mvp.vert", "resources/shaders/terrain.frag"), 
-        std::unique_ptr<eng::rndr::ComputeShaderProgram> terrainGenShader = std::make_unique<eng::rndr::ComputeShaderProgram>("resources/shaders/terraingen.comp"));
+        std::unique_ptr<eng::rndr::VFShaderProgram> drawShader = std::make_unique<eng::rndr::VFShaderProgram>("../resources/shaders/mvp.vert", "../resources/shaders/terrain.frag"), 
+        std::unique_ptr<eng::rndr::ComputeShaderProgram> terrainGenShader = std::make_unique<eng::rndr::ComputeShaderProgram>("../resources/shaders/terraingen.comp"));
         void generate();
         virtual void draw(eng::rndr::Renderer *renderer) override;
         virtual void update([[maybe_unused]]double delta, [[maybe_unused]]eng::Engine *engine) override{};

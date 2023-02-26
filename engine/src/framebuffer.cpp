@@ -75,7 +75,7 @@ void FrameBuffer::draw()
     glDisable(GL_DEPTH_TEST);
     m_fboShader->bind();
     m_fboShader->setUniform("image", 0);
-    m_fboShader->setUniform("depthImage", 0);
+    m_fboShader->setUniform("depthImage", 1);
     m_fboTexture->bind(GL_TEXTURE0);
     m_fboDepthTexture->bind(GL_TEXTURE1);
 
