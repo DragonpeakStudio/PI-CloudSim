@@ -2,7 +2,7 @@
 #include <OpenImageIO/imageio.h>
 namespace eng::rndr
 {
-Texture2d::Texture2d(const std::string &path, Texture2dInfo info) : m_info(info)
+Texture2d::Texture2d(const std::string &path, TextureInfo info) : m_info(info)
 {
     auto in = OIIO::ImageInput::open(path);
     if(!in)
@@ -60,7 +60,7 @@ Texture2d::Texture2d(const std::string &path, Texture2dInfo info) : m_info(info)
     fromData(data.data());
 }
 
-Texture2d::Texture2d(void *data, Texture2dInfo info, int width, int height) : m_width(width), m_height(height), m_info(info)
+Texture2d::Texture2d(void *data, TextureInfo info, int width, int height) : m_width(width), m_height(height), m_info(info)
 {
     fromData(data);
 }

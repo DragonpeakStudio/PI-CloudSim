@@ -48,6 +48,9 @@ Renderer::Renderer(RendererConfig config, Engine *eng) : m_window(config.width, 
 	ImGui_ImplOpenGL3_Init("#version 150");
 
 	m_frameBuffer.init(m_window.width(), m_window.height(), GL_RGBA);
+	// GLint size;
+	// glGetIntegerv(GL_MAX_3D_TEXTURE_SIZE, &size);
+	// std::cerr << "Max 3D texture size: " << size << std::endl;
 
 }
 

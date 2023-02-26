@@ -20,9 +20,9 @@ void FrameBuffer::init(unsigned int w, unsigned int h, GLint format)
 {
     m_fboShader->load();
 
-    m_fboTexture = std::make_unique<Texture2d>(nullptr, Texture2dInfo{GL_REPEAT, GL_REPEAT, GL_LINEAR, GL_LINEAR, GL_RGBA, 4, format, GL_UNSIGNED_BYTE}, w, h);
+    m_fboTexture = std::make_unique<Texture2d>(nullptr, TextureInfo{GL_REPEAT, GL_REPEAT, GL_LINEAR, GL_LINEAR, GL_RGBA, 4, format, GL_UNSIGNED_BYTE}, w, h);
 
-    m_fboDepthTexture = std::make_unique<Texture2d>(nullptr, Texture2dInfo{GL_REPEAT, GL_REPEAT, GL_LINEAR, GL_LINEAR, GL_DEPTH_COMPONENT, 1, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE}, w, h);
+    m_fboDepthTexture = std::make_unique<Texture2d>(nullptr, TextureInfo{GL_REPEAT, GL_REPEAT, GL_LINEAR, GL_LINEAR, GL_DEPTH_COMPONENT, 1, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE}, w, h);
 
 
     glGenFramebuffers(1, &m_fbo);

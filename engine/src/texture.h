@@ -5,6 +5,10 @@
 #include <GL/glew.h>
 namespace eng::rndr
 {
+struct TextureInfo
+{
+    GLint wrapS, wrapT, filterMin, filterMag, format, channels, internalFormat, type;
+};
 class Texture
 {
     public:

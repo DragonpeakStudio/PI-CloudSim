@@ -7,15 +7,12 @@
 #include "texture.h"
 namespace eng::rndr
 {
-struct Texture2dInfo
-{
-    GLint wrapS, wrapT, filterMin, filterMag, format, channels, internalFormat, type;
-};
+
 class Texture2d : public Texture
 {
     public:
-        Texture2d(const std::string &path, Texture2dInfo info);
-        Texture2d(void *data, Texture2dInfo info, int width, int height);
+        Texture2d(const std::string &path, TextureInfo info);
+        Texture2d(void *data, TextureInfo info, int width, int height);
 
         ~Texture2d();
 
@@ -28,7 +25,7 @@ class Texture2d : public Texture
         void fromData(void *data);
         int m_width;
         int m_height;
-        Texture2dInfo m_info;
+        TextureInfo m_info;
 
 };
 }
