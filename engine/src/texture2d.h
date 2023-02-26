@@ -16,9 +16,9 @@ class Texture2d : public Texture
 
         ~Texture2d();
 
-		int getWidth() const;
+		int width() const;
 
-		int getHeight() const;
+		int height() const;
 
     
     protected:

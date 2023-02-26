@@ -65,7 +65,7 @@ void Terrain::generate()
     m_heightMap->bind(GL_TEXTURE1);
     m_terrainGenShader->setUniform("terrainImage", 1);
     m_terrainGenShader->setUniform("vertexBuffer", 0);
-    m_terrainGenShader->setUniform("mapSize", glm::ivec2(m_heightMap->getWidth(), m_heightMap->getHeight()));
+    m_terrainGenShader->setUniform("mapSize", glm::ivec2(m_heightMap->width(), m_heightMap->height()));
 
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_vbo);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_vbo);
@@ -109,5 +109,6 @@ void Terrain::drawUI()
     ImGui::SliderFloat("Shadow Step", &m_shadowStep, 0.001, 10.);
     ImGui::SliderFloat("Shadow Far", &m_shadowFar, 0.001, 1000.);
     ImGui::SliderFloat("Shadow K", &m_shadowK, 0.001, 32.);
+    //ImGui::Image((void*)(intptr_t)m_colMap->id(), {(float)256.f, (float)256.f});
 	ImGui::End();
 }

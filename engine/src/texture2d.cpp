@@ -69,12 +69,12 @@ Texture2d::~Texture2d()
 {
 }
 
-int Texture2d::getWidth() const
+int Texture2d::width() const
 {
     return m_width;
 }
 
-int Texture2d::getHeight() const
+int Texture2d::height() const
 {
     return m_height;
 }
