@@ -17,16 +17,16 @@ void eng::rndr::Camera::draw(rndr::Renderer *renderer)
     renderer->setProjMat(getProjection());
     m_isUiShown = renderer->isUiShown();//this is a total bodge to allow disabling mouse motion when ui is off
 }
-void eng::rndr::Camera::update(double delta, Engine *engine)
+void eng::rndr::Camera::update(double delta)
 {
     //key movement
     glm::vec3 moveState = glm::vec3(0);
-    moveState.y += engine->inputManager().getKeybindState(SDL_SCANCODE_W);
-    moveState.y -= engine->inputManager().getKeybindState(SDL_SCANCODE_S);
-    moveState.x -= engine->inputManager().getKeybindState(SDL_SCANCODE_A);
-    moveState.x += engine->inputManager().getKeybindState(SDL_SCANCODE_D);
-    moveState.z -= engine->inputManager().getKeybindState(SDL_SCANCODE_SPACE);
-    moveState.z += engine->inputManager().getKeybindState(SDL_SCANCODE_LSHIFT);
+    moveState.y += m_engine->inputManager().getKeybindState(SDL_SCANCODE_W);
+    moveState.y -= m_engine->inputManager().getKeybindState(SDL_SCANCODE_S);
+    moveState.x -= m_engine->inputManager().getKeybindState(SDL_SCANCODE_A);
+    moveState.x += m_engine->inputManager().getKeybindState(SDL_SCANCODE_D);
+    moveState.z -= m_engine->inputManager().getKeybindState(SDL_SCANCODE_SPACE);
+    moveState.z += m_engine->inputManager().getKeybindState(SDL_SCANCODE_LSHIFT);
 
     glm::vec3 side = cross(m_up, m_dir);
 

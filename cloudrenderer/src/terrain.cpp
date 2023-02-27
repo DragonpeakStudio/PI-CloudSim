@@ -1,15 +1,22 @@
 #include "terrain.h"
 #include "renderer.h"
 
-Terrain::Terrain(std::unique_ptr<eng::rndr::Texture2d> heightMap,
+Terrain::Terrain(std::weak_ptr<OutdoorLighting> lighting, std::unique_ptr<eng::rndr::Texture2d> heightMap,
          std::unique_ptr<eng::rndr::Texture2d> colMap,
          unsigned int sizeX,
          unsigned int sizeY,
          std::unique_ptr<eng::rndr::VFShaderProgram> drawShader, 
-         std::unique_ptr<eng::rndr::ComputeShaderProgram> terrainGenShader) : m_heightMap(std::move(heightMap)), m_colMap(std::move(colMap)), m_sizeX(sizeX), m_sizeY(sizeY), m_drawShader(std::move(drawShader)), m_terrainGenShader(std::move(terrainGenShader))
+         std::unique_ptr<eng::rndr::ComputeShaderProgram> terrainGenShader) : m_lighting(lighting), m_heightMap(std::move(heightMap)), m_colMap(std::move(colMap)), m_sizeX(sizeX), m_sizeY(sizeY), m_drawShader(std::move(drawShader)), m_terrainGenShader(std::move(terrainGenShader))
 {
     m_drawShader->load();
     m_terrainGenShader->load();
+}
+
+Terrain::~Terrain()
+{
+    glDeleteBuffers(1, &m_vbo);
+    glDeleteBuffers(1, &m_ebo);
+    glDeleteVertexArrays(1, &m_vao);
 }
 
 void Terrain::generate()
@@ -75,6 +82,7 @@ void Terrain::generate()
 
 void Terrain::draw(eng::rndr::Renderer *renderer)
 {
+    auto lighting = m_lighting.lock();
     glBindVertexArray(m_vao);
     m_drawShader->bind();
     m_drawShader->setUniform("model", glm::mat4(1.));
@@ -82,10 +90,9 @@ void Terrain::draw(eng::rndr::Renderer *renderer)
     m_drawShader->setUniform("projection", renderer->projMat());
     m_drawShader->setUniform("colourMap", 0);
     m_drawShader->setUniform("heightMap", 1);
-    glm::vec3 sunDir = glm::vec3(sin(m_sunSpherical.x)*cos(m_sunSpherical.y), sin(m_sunSpherical.x)*sin(m_sunSpherical.y), cos(m_sunSpherical.x));
-    m_drawShader->setUniform("lightDir", glm::normalize(sunDir));
-    m_drawShader->setUniform("lightCol", m_sunCol*5.f);
-    m_drawShader->setUniform("ambientCol", m_ambientCol);
+    m_drawShader->setUniform("lightDir", glm::normalize(lighting->sunDir()));
+    m_drawShader->setUniform("lightCol", lighting->sunCol()*5.f);
+    m_drawShader->setUniform("ambientCol", lighting->ambientCol());
     m_drawShader->setUniform("shadowSteps", m_shadowStep);
     m_drawShader->setUniform("shadowFar", m_shadowFar);
     m_drawShader->setUniform("shadowK", m_shadowK);
@@ -103,9 +110,6 @@ void Terrain::drawUI()
 {
     ImGui::Begin("Terrain");
 
-    ImGui::ColorEdit3("Sun Colour", &m_sunCol.x);
-    ImGui::ColorEdit3("Ambient Colour", &m_ambientCol.x);
-    ImGui::SliderFloat2("Sun Dir", &m_sunSpherical.x, -3.14, 3.14);
     ImGui::SliderFloat("Shadow Step", &m_shadowStep, 0.001, 10.);
     ImGui::SliderFloat("Shadow Far", &m_shadowFar, 0.001, 1000.);
     ImGui::SliderFloat("Shadow K", &m_shadowK, 0.001, 32.);

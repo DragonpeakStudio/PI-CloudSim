@@ -54,7 +54,7 @@ void Engine::update(double delta)
 {
     for(auto &i : m_objects)
     {
-        i->update(delta, this);
+        i->update(delta);
     }
 }
 }

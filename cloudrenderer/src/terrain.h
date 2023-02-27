@@ -11,19 +11,20 @@
 #include "vfshaderprogram.h"
 #include "object.h"
 #include "glutil.h"
+#include "outdoorlighting.h"
 class Terrain : public eng::Object
 {
 
     public:
-        Terrain(std::unique_ptr<eng::rndr::Texture2d> heightMap,
+        Terrain(std::weak_ptr<OutdoorLighting> lighting, std::unique_ptr<eng::rndr::Texture2d> heightMap,
         std::unique_ptr<eng::rndr::Texture2d> colMap,
         unsigned int sizeX,
         unsigned int sizeY,
         std::unique_ptr<eng::rndr::VFShaderProgram> drawShader = std::make_unique<eng::rndr::VFShaderProgram>("../resources/shaders/mvp.vert", "../resources/shaders/terrain.frag"), 
         std::unique_ptr<eng::rndr::ComputeShaderProgram> terrainGenShader = std::make_unique<eng::rndr::ComputeShaderProgram>("../resources/shaders/terraingen.comp"));
+        virtual ~Terrain();
         void generate();
         virtual void draw(eng::rndr::Renderer *renderer) override;
-        virtual void update([[maybe_unused]]double delta, [[maybe_unused]]eng::Engine *engine) override{};
         virtual void drawUI() override;
     private:
         struct Vert
@@ -32,6 +33,8 @@ class Terrain : public eng::Object
             glm::vec4 normal;
             glm::vec4 uv;
         };
+        std::weak_ptr<OutdoorLighting> m_lighting;
+
         std::vector<Vert> m_vertexGrid;
         std::vector<GLuint> m_elements;
 
@@ -47,12 +50,11 @@ class Terrain : public eng::Object
         GLuint m_vbo = 0;
         GLuint m_ebo = 0;
         GLuint m_vao = 0;
-        glm::vec3 m_sunCol = glm::vec3(1,.9,.85);
-        glm::vec3 m_ambientCol = glm::vec3(.2,.3,.6);
-        glm::vec2 m_sunSpherical = glm::vec2(1., 1.);
+
         float m_shadowK = 10.;
         float m_shadowStep = 2.;
         float m_shadowFar = 100.;
+
 
 
 
