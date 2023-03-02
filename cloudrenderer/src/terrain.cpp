@@ -120,7 +120,6 @@ void Terrain::drawUI()
 
 void Terrain::updateShadows()
 {
-    std::cerr << "updating lighting" << std::endl; 
     auto lighting = m_lighting.lock();
     m_shadowMapShader->bind();
     m_shadowMapShader->setUniform("shadowSteps", m_shadowStep);
