@@ -5,9 +5,11 @@ Terrain::Terrain(std::weak_ptr<OutdoorLighting> lighting, std::unique_ptr<eng::r
          std::unique_ptr<eng::rndr::Texture2d> colMap,
          unsigned int sizeX,
          unsigned int sizeY,
+         unsigned int resX,
+         unsigned int resY,
          std::unique_ptr<eng::rndr::VFShaderProgram> drawShader, 
          std::unique_ptr<eng::rndr::ComputeShaderProgram> terrainGenShader,
-         std::unique_ptr<eng::rndr::ComputeShaderProgram> shadowMapShader) : m_lighting(lighting), m_heightMap(std::move(heightMap)), m_colMap(std::move(colMap)), m_sizeX(sizeX), m_sizeY(sizeY), m_drawShader(std::move(drawShader)), m_terrainGenShader(std::move(terrainGenShader)), m_shadowMapShader(std::move(shadowMapShader))
+         std::unique_ptr<eng::rndr::ComputeShaderProgram> shadowMapShader) : m_lighting(lighting), m_heightMap(std::move(heightMap)), m_colMap(std::move(colMap)), m_sizeX(sizeX), m_sizeY(sizeY), m_resX(resX), m_resY(resY), m_drawShader(std::move(drawShader)), m_terrainGenShader(std::move(terrainGenShader)), m_shadowMapShader(std::move(shadowMapShader))
 {
     m_drawShader->load();
     m_terrainGenShader->load();
@@ -23,22 +25,22 @@ Terrain::~Terrain()
 
 void Terrain::generate()
 {
-    m_vertexGrid.reserve(m_sizeX*m_sizeY);
-    m_elements.reserve(m_sizeX*m_sizeY*3);
-    for(unsigned int x = 0; x < m_sizeX; x++)
+    m_vertexGrid.reserve(m_resX*m_resY);
+    m_elements.reserve(m_resX*m_resY*3);
+    for(unsigned int x = 0; x < m_resX; x++)
     {
-        for(unsigned int y = 0; y < m_sizeY; y++)
+        for(unsigned int y = 0; y < m_resY; y++)
         {
-            m_vertexGrid.push_back(Vert{glm::vec4((float)x - (float)m_sizeX/2., (float)y - (float)m_sizeY/2., 0., 1.), glm::vec4(0,0,0,0), glm::vec4((float)x/(float)m_sizeX, (float)y/(float)m_sizeY,0,0)});
-            if(x < m_sizeX-1 && y < m_sizeY-1)
+            m_vertexGrid.push_back(Vert{(glm::vec4((float)x - (float)m_resX/2., (float)y - (float)m_resY/2., 0., 1.)/glm::vec4(m_resX, m_resY,1,1))*glm::vec4(m_sizeX, m_sizeY,1,1), glm::vec4(0,0,0,0), glm::vec4((float)x/(float)m_resX, (float)y/(float)m_resY,0,0)});
+            if(x < m_resX-1 && y < m_resY-1)
             {
-                m_elements.push_back(x+y*m_sizeX);
-                m_elements.push_back(x+(y+1)*m_sizeX);
-                m_elements.push_back((x+1)+y*m_sizeX);
+                m_elements.push_back(x+y*m_resX);
+                m_elements.push_back(x+(y+1)*m_resX);
+                m_elements.push_back((x+1)+y*m_resX);
 
-                m_elements.push_back(x+(y+1)*m_sizeX);
-                m_elements.push_back((x+1)+(y+1)*m_sizeX);
-                m_elements.push_back((x+1)+y*m_sizeX);
+                m_elements.push_back(x+(y+1)*m_resX);
+                m_elements.push_back((x+1)+(y+1)*m_resX);
+                m_elements.push_back((x+1)+y*m_resX);
             }
 
         }
@@ -125,7 +127,6 @@ void Terrain::updateShadows()
     m_shadowMapShader->setUniform("shadowSteps", m_shadowStep);
     m_shadowMapShader->setUniform("shadowFar", m_shadowFar);
     m_shadowMapShader->setUniform("shadowK", m_shadowK);
-    m_shadowMapShader->setUniform("size", glm::vec2(m_sizeX, m_sizeY));
     m_shadowMapShader->setUniform("lightDir", glm::normalize(lighting->sunDir()));
     m_shadowMapShader->setUniform("heightMap", 0);
     m_heightMap->bind(GL_TEXTURE0);

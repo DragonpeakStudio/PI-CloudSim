@@ -20,6 +20,8 @@ class Terrain : public eng::Object
         std::unique_ptr<eng::rndr::Texture2d> colMap,
         unsigned int sizeX,
         unsigned int sizeY,
+        unsigned int resX,
+        unsigned int resY,
         std::unique_ptr<eng::rndr::VFShaderProgram> drawShader = std::make_unique<eng::rndr::VFShaderProgram>("../resources/shaders/mvp.vert", "../resources/shaders/terrain.frag"), 
         std::unique_ptr<eng::rndr::ComputeShaderProgram> terrainGenShader = std::make_unique<eng::rndr::ComputeShaderProgram>("../resources/shaders/terraingen.comp"),
         std::unique_ptr<eng::rndr::ComputeShaderProgram> shadowMapShader = std::make_unique<eng::rndr::ComputeShaderProgram>("../resources/shaders/calcterrainshadow.comp"));
@@ -44,6 +46,9 @@ class Terrain : public eng::Object
 
         unsigned int m_sizeX;
         unsigned int m_sizeY;
+
+        unsigned int m_resX;
+        unsigned int m_resY;
 
         std::unique_ptr<eng::rndr::VFShaderProgram> m_drawShader;
         std::unique_ptr<eng::rndr::ComputeShaderProgram> m_terrainGenShader;
