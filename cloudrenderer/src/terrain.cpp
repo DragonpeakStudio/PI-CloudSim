@@ -6,10 +6,12 @@ Terrain::Terrain(std::weak_ptr<OutdoorLighting> lighting, std::unique_ptr<eng::r
          unsigned int sizeX,
          unsigned int sizeY,
          std::unique_ptr<eng::rndr::VFShaderProgram> drawShader, 
-         std::unique_ptr<eng::rndr::ComputeShaderProgram> terrainGenShader) : m_lighting(lighting), m_heightMap(std::move(heightMap)), m_colMap(std::move(colMap)), m_sizeX(sizeX), m_sizeY(sizeY), m_drawShader(std::move(drawShader)), m_terrainGenShader(std::move(terrainGenShader))
+         std::unique_ptr<eng::rndr::ComputeShaderProgram> terrainGenShader,
+         std::unique_ptr<eng::rndr::ComputeShaderProgram> shadowMapShader) : m_lighting(lighting), m_heightMap(std::move(heightMap)), m_colMap(std::move(colMap)), m_sizeX(sizeX), m_sizeY(sizeY), m_drawShader(std::move(drawShader)), m_terrainGenShader(std::move(terrainGenShader)), m_shadowMapShader(std::move(shadowMapShader))
 {
     m_drawShader->load();
     m_terrainGenShader->load();
+    m_shadowMapShader->load();
 }
 
 Terrain::~Terrain()
@@ -78,28 +80,28 @@ void Terrain::generate()
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_vbo);
     m_terrainGenShader->dispatch(glm::uvec3(m_vertexGrid.size()/32,1,1));
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+    updateShadows();
+
 }
 
 void Terrain::draw(eng::rndr::Renderer *renderer)
 {
     auto lighting = m_lighting.lock();
+    if(m_hasShadowParamsChanged || lighting->hasDirChanged())
+    {
+        updateShadows();
+    }
     glBindVertexArray(m_vao);
     m_drawShader->bind();
     m_drawShader->setUniform("model", glm::mat4(1.));
     m_drawShader->setUniform("view", renderer->viewMat());
     m_drawShader->setUniform("projection", renderer->projMat());
     m_drawShader->setUniform("colourMap", 0);
-    m_drawShader->setUniform("heightMap", 1);
     m_drawShader->setUniform("lightDir", glm::normalize(lighting->sunDir()));
     m_drawShader->setUniform("lightCol", lighting->sunCol()*5.f);
     m_drawShader->setUniform("ambientCol", lighting->ambientCol());
-    m_drawShader->setUniform("shadowSteps", m_shadowStep);
-    m_drawShader->setUniform("shadowFar", m_shadowFar);
-    m_drawShader->setUniform("shadowK", m_shadowK);
-    m_drawShader->setUniform("size", glm::vec2(m_sizeX, m_sizeY));
 
 
-    m_heightMap->bind(GL_TEXTURE1);
     m_colMap->bind(GL_TEXTURE0);
     glDrawElements(GL_TRIANGLES, m_elements.size(), GL_UNSIGNED_INT, 0);
     glUseProgram(0);
@@ -109,10 +111,28 @@ void Terrain::draw(eng::rndr::Renderer *renderer)
 void Terrain::drawUI()
 {
     ImGui::Begin("Terrain");
-
-    ImGui::SliderFloat("Shadow Step", &m_shadowStep, 0.001, 10.);
-    ImGui::SliderFloat("Shadow Far", &m_shadowFar, 0.001, 1000.);
-    ImGui::SliderFloat("Shadow K", &m_shadowK, 0.001, 32.);
+    m_hasShadowParamsChanged = ImGui::SliderFloat("Shadow Step", &m_shadowStep, 0.1, 100.);
+    m_hasShadowParamsChanged = m_hasShadowParamsChanged||ImGui::SliderFloat("Shadow Far", &m_shadowFar, 0.001, 1000.);
+    m_hasShadowParamsChanged = m_hasShadowParamsChanged||ImGui::SliderFloat("Shadow K", &m_shadowK, 0.001, 64.);
     //ImGui::Image((void*)(intptr_t)m_colMap->id(), {(float)256.f, (float)256.f});
 	ImGui::End();
+}
+
+void Terrain::updateShadows()
+{
+    std::cerr << "updating lighting" << std::endl; 
+    auto lighting = m_lighting.lock();
+    m_shadowMapShader->bind();
+    m_shadowMapShader->setUniform("shadowSteps", m_shadowStep);
+    m_shadowMapShader->setUniform("shadowFar", m_shadowFar);
+    m_shadowMapShader->setUniform("shadowK", m_shadowK);
+    m_shadowMapShader->setUniform("size", glm::vec2(m_sizeX, m_sizeY));
+    m_shadowMapShader->setUniform("lightDir", glm::normalize(lighting->sunDir()));
+    m_shadowMapShader->setUniform("heightMap", 0);
+    m_heightMap->bind(GL_TEXTURE0);
+
+    glBindImageTexture(1, m_colMap->id(), 0, false, 0, GL_READ_WRITE, GL_RGBA8);
+
+    m_shadowMapShader->dispatch(glm::uvec3(m_colMap->width(), m_colMap->height(), 1));
+    glUseProgram(0);    
 }

@@ -25,7 +25,7 @@ Renderer::Renderer(RendererConfig config, Engine *eng) : m_window(config.width, 
 	{
 		throw std::runtime_error("Unable to Init GLEW");
 	}
-	SDL_SetRelativeMouseMode(SDL_TRUE);
+	SDL_SetRelativeMouseMode(SDL_FALSE);
 	SDL_GL_SetSwapInterval(1);
 	glEnable(GL_CULL_FACE);  
 	glEnable( GL_DEBUG_OUTPUT );

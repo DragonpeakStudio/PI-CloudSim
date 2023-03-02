@@ -21,7 +21,8 @@ class Terrain : public eng::Object
         unsigned int sizeX,
         unsigned int sizeY,
         std::unique_ptr<eng::rndr::VFShaderProgram> drawShader = std::make_unique<eng::rndr::VFShaderProgram>("../resources/shaders/mvp.vert", "../resources/shaders/terrain.frag"), 
-        std::unique_ptr<eng::rndr::ComputeShaderProgram> terrainGenShader = std::make_unique<eng::rndr::ComputeShaderProgram>("../resources/shaders/terraingen.comp"));
+        std::unique_ptr<eng::rndr::ComputeShaderProgram> terrainGenShader = std::make_unique<eng::rndr::ComputeShaderProgram>("../resources/shaders/terraingen.comp"),
+        std::unique_ptr<eng::rndr::ComputeShaderProgram> shadowMapShader = std::make_unique<eng::rndr::ComputeShaderProgram>("../resources/shaders/calcterrainshadow.comp"));
         virtual ~Terrain();
         void generate();
         virtual void draw(eng::rndr::Renderer *renderer) override;
@@ -46,14 +47,19 @@ class Terrain : public eng::Object
 
         std::unique_ptr<eng::rndr::VFShaderProgram> m_drawShader;
         std::unique_ptr<eng::rndr::ComputeShaderProgram> m_terrainGenShader;
+        std::unique_ptr<eng::rndr::ComputeShaderProgram> m_shadowMapShader;
+
 
         GLuint m_vbo = 0;
         GLuint m_ebo = 0;
         GLuint m_vao = 0;
 
-        float m_shadowK = 10.;
-        float m_shadowStep = 2.;
-        float m_shadowFar = 100.;
+        float m_shadowK = 32.;
+        float m_shadowStep = 20.;
+        float m_shadowFar = 1000.;
+        bool m_hasShadowParamsChanged = true;
+
+        void updateShadows();
 
 
 

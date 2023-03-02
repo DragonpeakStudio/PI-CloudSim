@@ -14,7 +14,7 @@ void OutdoorLighting::drawUI()
     ImGui::Begin("Light");
     ImGui::ColorEdit3("Sun Colour", &m_sunCol.x);
     ImGui::ColorEdit3("Ambient Colour", &m_ambientCol.x);
-    ImGui::SliderFloat2("Sun Dir", &m_sunSpherical.x, -3.14, 3.14);
+    m_hasDirChanged = ImGui::SliderFloat2("Sun Dir", &m_sunSpherical.x, -3.14, 3.14);
     ImGui::End();
 }
 glm::vec3 OutdoorLighting::ambientCol() const
@@ -31,4 +31,9 @@ glm::vec3 OutdoorLighting::sunDir() const
 glm::vec3 OutdoorLighting::sunCol() const
 {
     return m_sunCol;
+}
+
+bool OutdoorLighting::hasDirChanged() const
+{
+    return m_hasDirChanged;
 }

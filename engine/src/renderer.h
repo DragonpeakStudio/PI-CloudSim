@@ -57,7 +57,7 @@ class Renderer
         glm::mat4 m_projMat;
         ImGuiIO m_imguiIo;
         Engine *m_engine;
-        bool m_isUiShown = false;
+        bool m_isUiShown = true;
         FrameBuffer m_frameBuffer;
 
 
