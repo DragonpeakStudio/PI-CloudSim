@@ -11,11 +11,11 @@ glm::mat4 eng::rndr::Camera::getView() const
 {
     return glm::lookAt(m_pos, m_dir+m_pos, m_up);
 }
-void eng::rndr::Camera::draw(rndr::Renderer *renderer)
+void eng::rndr::Camera::draw(rndr::Renderer &renderer)
 {
-    renderer->setViewMat(getView());
-    renderer->setProjMat(getProjection());
-    m_isUiShown = renderer->isUiShown();//this is a total bodge to allow disabling mouse motion when ui is off
+    renderer.setViewMat(getView());
+    renderer.setProjMat(getProjection());
+    m_isUiShown = renderer.isUiShown();//this is a total bodge to allow disabling mouse motion when ui is off
 }
 void eng::rndr::Camera::update(double delta)
 {

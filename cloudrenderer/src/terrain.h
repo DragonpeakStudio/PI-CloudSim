@@ -27,7 +27,7 @@ class Terrain : public eng::Object
         std::unique_ptr<eng::rndr::ComputeShaderProgram> shadowMapShader = std::make_unique<eng::rndr::ComputeShaderProgram>("../resources/shaders/calcterrainshadow.comp"));
         virtual ~Terrain();
         void generate();
-        virtual void draw(eng::rndr::Renderer *renderer) override;
+        virtual void draw(eng::rndr::Renderer &renderer) override;
         virtual void drawUI() override;
     private:
         struct Vert

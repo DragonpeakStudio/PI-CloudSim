@@ -2,6 +2,7 @@
 #include "terrain.h"
 #include "camera.h"
 #include "outdoorlighting.h"
+#include "cloudsystem.h"
 int main(int, char**) 
 {
     const int width = 1280;

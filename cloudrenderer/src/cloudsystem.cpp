@@ -11,7 +11,7 @@ void CloudSystem::drawUI()
 {
     //TODO
 }
-void CloudSystem::draw(eng::rndr::Renderer *renderer)
+void CloudSystem::draw(eng::rndr::Renderer &renderer)
 {
-    m_renderer->draw(m_simulator->getField("density"));
+    m_renderer->draw(m_simulator->getField("density"), renderer);
 }

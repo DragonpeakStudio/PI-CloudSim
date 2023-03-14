@@ -9,7 +9,7 @@ namespace rndr{class Renderer;};
 class Object//this doesn't need to be fast, we will only have ~3-4 ever
 {
     public:
-        virtual void draw([[maybe_unused]]rndr::Renderer *renderer){};
+        virtual void draw([[maybe_unused]]rndr::Renderer &renderer){};
         virtual void update([[maybe_unused]]double delta){};
         virtual void onAdd(Engine *engine){m_engine = engine;}
         virtual void drawUI(){}

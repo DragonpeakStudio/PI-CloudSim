@@ -86,7 +86,7 @@ void Terrain::generate()
 
 }
 
-void Terrain::draw(eng::rndr::Renderer *renderer)
+void Terrain::draw(eng::rndr::Renderer &renderer)
 {
     auto lighting = m_lighting.lock();
     if(m_hasShadowParamsChanged || lighting->hasDirChanged())
@@ -96,8 +96,8 @@ void Terrain::draw(eng::rndr::Renderer *renderer)
     glBindVertexArray(m_vao);
     m_drawShader->bind();
     m_drawShader->setUniform("model", glm::mat4(1.));
-    m_drawShader->setUniform("view", renderer->viewMat());
-    m_drawShader->setUniform("projection", renderer->projMat());
+    m_drawShader->setUniform("view", renderer.viewMat());
+    m_drawShader->setUniform("projection", renderer.projMat());
     m_drawShader->setUniform("colourMap", 0);
     m_drawShader->setUniform("lightDir", glm::normalize(lighting->sunDir()));
     m_drawShader->setUniform("lightCol", lighting->sunCol()*5.f);

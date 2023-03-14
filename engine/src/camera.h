@@ -17,7 +17,7 @@ class Camera : public Object
         glm::mat4 getView() const;
         glm::mat4 getProjection() const;
 
-        virtual void draw(rndr::Renderer *renderer) override;
+        virtual void draw(rndr::Renderer &renderer) override;
         virtual void update(double delta) override;
         virtual void onAdd(Engine *engine) override;
 

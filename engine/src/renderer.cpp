@@ -81,7 +81,7 @@ void Renderer::dispatchFrame()
 
 	for(auto & i : m_drawables)
 	{
-		i->draw(this);
+		i->draw(*this);
 	}
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
     m_frameBuffer.draw();
