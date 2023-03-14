@@ -1,8 +1,7 @@
 #include "cloudrenderer.h"
 
-CloudRenderer::CloudRenderer()
+CloudRenderer::CloudRenderer(CloudSystem &cloudSystem) : m_cloudSystem(cloudSystem)
 {
-
 }
 
 CloudRenderer::~CloudRenderer()
