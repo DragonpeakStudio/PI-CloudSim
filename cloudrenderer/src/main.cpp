@@ -3,6 +3,8 @@
 #include "camera.h"
 #include "outdoorlighting.h"
 #include "cloudsystem.h"
+#include "cloudnoisesimulator.h"
+#include "cloudvolumerenderer.h"
 int main(int, char**) 
 {
     const int width = 1280;
@@ -16,6 +18,7 @@ int main(int, char**)
     engine.addObject(std::make_shared<eng::rndr::Camera>(80., (float)width/(float)height));
     engine.addObject(terrain);
     engine.addObject(lighting);
+    engine.addObject(CloudSystem::create<CloudVolumeRenderer, CloudNoiseSimulator>(std::make_pair(glm::vec3(-1000,-1000,-1000), glm::vec3(1000,1000,1000)), lighting, 10.f));
     engine.run();
     return 0;
 }

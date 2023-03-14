@@ -1,10 +1,5 @@
 #include "cloudrenderer.h"
 
-CloudRenderer::CloudRenderer(CloudSystem &cloudSystem) : m_cloudSystem(cloudSystem)
+CloudRenderer::CloudRenderer(std::pair<glm::vec3, glm::vec3> bbox) : m_bbox(bbox)
 {
-}
-
-CloudRenderer::~CloudRenderer()
-{
-
 }

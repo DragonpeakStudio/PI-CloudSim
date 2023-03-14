@@ -8,12 +8,12 @@ class CloudSystem;
 class CloudRenderer
 {
     public:
-        CloudRenderer(CloudSystem &cloudSystem);
-        ~CloudRenderer();
+        CloudRenderer(std::pair<glm::vec3, glm::vec3> bbox);
+        virtual ~CloudRenderer(){}
         virtual void draw(eng::rndr::Texture3d &densityField, eng::rndr::Renderer &renderer) = 0;
     
     protected:
-        CloudSystem &m_cloudSystem;
+        std::pair<glm::vec3, glm::vec3> m_bbox;
 
 };
 
