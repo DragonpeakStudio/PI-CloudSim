@@ -43,4 +43,10 @@ TextureInfo Texture3d::info() const
 {
     return m_info;
 }
+void Texture3d::bind(GLenum unit)
+{
+    glActiveTexture(unit);
+    glBindTexture(GL_TEXTURE_3D, m_id);
+}
+
 }

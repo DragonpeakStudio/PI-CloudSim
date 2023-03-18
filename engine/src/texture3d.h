@@ -21,6 +21,7 @@ class Texture3d : public Texture
         int depth() const;
 
         TextureInfo info() const;
+        virtual void bind(GLenum unit) override;
     
     protected:
         int m_width;

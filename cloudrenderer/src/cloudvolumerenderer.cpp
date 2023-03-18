@@ -31,12 +31,17 @@ CloudVolumeRenderer::~CloudVolumeRenderer()
 
 void CloudVolumeRenderer::draw(eng::rndr::Texture3d &densityField, eng::rndr::Renderer &renderer)//TODO offscreen draw to allow lowres volume rendering
 {
+    glm::ivec4 viewport; 
+    glGetIntegerv( GL_VIEWPORT, &viewport.x );
     glDisable(GL_DEPTH_TEST);
     glBindVertexArray(m_vao);
     m_drawShader.bind();
     m_drawShader.setUniform("densityField", 0);
     m_drawShader.setUniform("bboxMin", m_bbox.first);
     m_drawShader.setUniform("bboxMax", m_bbox.second);
+    m_drawShader.setUniform("invProjView",glm::inverse(renderer.projMat()*renderer.viewMat()));
+    m_drawShader.setUniform("viewport", viewport);
+
 
     densityField.bind(GL_TEXTURE0);
     glDrawArrays(GL_TRIANGLES, 0, 6);

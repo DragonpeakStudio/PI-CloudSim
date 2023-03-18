@@ -16,7 +16,7 @@ class Texture
         virtual ~Texture();
 
         GLuint id() const;
-        void bind(GLenum unit);
+        virtual void bind(GLenum unit);
         
     
     protected:
