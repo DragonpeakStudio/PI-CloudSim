@@ -11,7 +11,7 @@ class CloudRenderer
         CloudRenderer(std::pair<glm::vec3, glm::vec3> bbox);
         virtual ~CloudRenderer(){}
         virtual void draw(eng::rndr::Texture3d &densityField, eng::rndr::Renderer &renderer) = 0;
-    
+        virtual void drawUI() = 0;
     protected:
         std::pair<glm::vec3, glm::vec3> m_bbox;
 

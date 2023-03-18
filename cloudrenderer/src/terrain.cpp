@@ -42,7 +42,6 @@ void Terrain::generate()
                 m_elements.push_back((x+1)+(y+1)*m_resX);
                 m_elements.push_back((x+1)+y*m_resX);
             }
-
         }
 
     }

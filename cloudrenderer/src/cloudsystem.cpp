@@ -14,6 +14,8 @@ void CloudSystem::update(double delta)
 void CloudSystem::drawUI()
 {
     //TODO
+    m_simulator->drawUI();
+    m_renderer->drawUI();
 }
 CloudSystem::~CloudSystem()
 {

@@ -20,6 +20,12 @@ class FrameBuffer
 
         Texture2d *frameBufferTexture();
 		Texture2d *frameBufferDepthTexture();
+        inline static const glm::vec2 s_fsq[] = {glm::vec2(-1.,-1.),
+		glm::vec2(1.,1.),
+		glm::vec2(-1.,1.),
+		glm::vec2(-1.,-1.),
+		glm::vec2(1.,-1.),
+		glm::vec2(1.,1.)};
 
 
     private:
@@ -28,12 +34,7 @@ class FrameBuffer
         std::unique_ptr<Texture2d> m_fboTexture;
         std::unique_ptr<Texture2d> m_fboDepthTexture;
         bool m_useDepth;
-        inline static const glm::vec2 s_fsq[] = {glm::vec2(-1.,-1.),
-		glm::vec2(1.,1.),
-		glm::vec2(-1.,1.),
-		glm::vec2(-1.,-1.),
-		glm::vec2(1.,-1.),
-		glm::vec2(1.,1.)};
+
         GLuint m_fsqVao = 0;
         GLuint m_fsqVbo = 0;
 

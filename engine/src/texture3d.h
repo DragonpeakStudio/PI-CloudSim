@@ -13,9 +13,19 @@ class Texture3d : public Texture
     public:
         Texture3d(void *data, TextureInfo info, int width, int height, int depth);
         ~Texture3d();
+
+        int width() const;
+
+        int height() const;
+
+        int depth() const;
+
+        TextureInfo info() const;
     
     protected:
-        int m_width, m_height, m_depth;
+        int m_width;
+        int m_height;
+        int m_depth;
         TextureInfo m_info;
 
 };

@@ -53,7 +53,7 @@ GLuint ShaderProgram::LoadShader(const std::string &code, GLenum type)
     return shader;
 }
 
-std::string ShaderProgram::ProcessShaderCode(std::string code)
+std::string ShaderProgram::ProcessShaderCode(std::string code)//TODO make a proper version of this
 {
     static const std::string incl = "#include";
     std::unordered_map<std::string, bool> included;
@@ -71,16 +71,15 @@ std::string ShaderProgram::ProcessShaderCode(std::string code)
             std::string path = code.substr(pathStart, pathEnd - pathStart - 1);
             if (!included.count(path))
             {
-                std::string insCode = ReadShaderFile("shaders/" + path);
+                std::string insCode = ReadShaderFile("../resources/shaders/" + path);
                 code.insert(pos, insCode);
                 included[path] = true;
             }
             else code.erase(pos, pathEnd - pos);
         }
-
+       
         pos = code.find(incl);
     }
-
     return code;
 }
 

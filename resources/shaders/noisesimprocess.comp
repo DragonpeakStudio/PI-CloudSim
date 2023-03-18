@@ -1,0 +1,11 @@
+#version 460 core
+layout(local_size_x = 8, local_size_y = 8, local_size_z = 8) in;
+
+layout (binding = 1, r16f) uniform image3D density;
+#include "lib/rand.slib"
+#include "lib/noise.slib"
+
+void main()
+{
+    imageStore(density, ivec3(gl_GlobalInvocationID.xyz), vec4(noise3D(vec3(gl_GlobalInvocationID.xyz)*.1)));
+}

@@ -19,8 +19,28 @@ Texture3d::Texture3d(void *data, TextureInfo info, int width, int height, int de
     glTexImage3D(GL_TEXTURE_3D, 0, m_info.internalFormat, m_width, m_height, m_depth, 0, m_info.format, m_info.type, data);
 }
 
+int Texture3d::height() const
+{
+    return m_height;
+}
+
 Texture3d::~Texture3d()
 {
 
+}
+
+int Texture3d::depth() const
+{
+    return m_depth;
+}
+
+int Texture3d::width() const
+{
+    return m_width;
+}
+
+TextureInfo Texture3d::info() const
+{
+    return m_info;
 }
 }

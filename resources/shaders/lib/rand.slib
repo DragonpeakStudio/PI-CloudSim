@@ -61,19 +61,19 @@ uvec4 pcg4d(uvec4 v)
     return v;
 }
 
-float fpcg(uint v)
+float fpcg(float v)
 {
-    return float(pcg(v))*(1.0/float(0xffffffffU));
+    return float(pcg(int(v)))*(1.0/float(0xffffffffU));
 }
-vec2 fpcg2d(uvec2 v)
+vec2 fpcg2d(vec2 v)
 {
-    return vec2(pcg2d(v))*(1.0/float(0xffffffffU));
+    return vec2(pcg2d(uvec2(v)))*(1.0/float(0xffffffffU));
 }
-vec3 fpcg3d(uvec3 v)
+vec3 fpcg3d(vec3 v)
 {
-    return vec3(pcg3d(v))*(1.0/float(0xffffffffU));
+    return vec3(pcg3d(uvec3(v)))*(1.0/float(0xffffffffU));
 }
-vec4 fpcg4d(uvec4 v)
+vec4 fpcg4d(vec4 v)
 {
-    return vec4(pcg4d(v))*(1.0/float(0xffffffffU));
+    return vec4(pcg4d(uvec4(v)))*(1.0/float(0xffffffffU));
 }

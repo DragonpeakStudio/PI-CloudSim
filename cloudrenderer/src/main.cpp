@@ -18,7 +18,7 @@ int main(int, char**)
     engine.addObject(std::make_shared<eng::rndr::Camera>(80., (float)width/(float)height));
     engine.addObject(terrain);
     engine.addObject(lighting);
-    engine.addObject(CloudSystem::create<CloudVolumeRenderer, CloudNoiseSimulator>(std::make_pair(glm::vec3(-1000,-1000,-1000), glm::vec3(1000,1000,1000)), lighting, 10.f));
+    engine.addObject(CloudSystem::create<CloudVolumeRenderer, CloudNoiseSimulator>(std::make_pair(glm::vec3(-500,-500,0), glm::vec3(500,500,100)), lighting, 20.f));
     engine.run();
     return 0;
 }

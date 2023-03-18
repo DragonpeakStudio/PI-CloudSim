@@ -1,0 +1,42 @@
+
+float noise2D(vec2 p)//TODO replace these with better noise funcs
+{
+    vec2 ap = abs(p);
+    vec2 fr = fract(ap);
+    fr = fr * fr * (3. - 2. * fr);
+    
+    float a = fpcg2d(ap).x;
+    float b = fpcg2d(ap+vec2(1,0)).x;
+    float c = fpcg2d(ap+vec2(0,1)).x;
+    float d = fpcg2d(ap+vec2(1)).x;
+
+    float v = mix(mix(a,b, fr.x),mix(c,d,fr.x), fr.y);
+    
+
+    
+
+    return v;
+}
+float noise3D(vec3 p)
+{
+    vec3 ap = abs(p);
+    vec3 fr = fract(ap);
+    fr = fr * fr * (3. - 2. * fr);
+    
+    float a = fpcg3d(ap).x;
+    float b = fpcg3d(ap+vec3(1,0,0)).x;
+    float c = fpcg3d(ap+vec3(0,1,0)).x;
+    float d = fpcg3d(ap+vec3(1,1,0)).x;
+    
+    float e = fpcg3d(ap+vec3(0,0,1)).x;
+    float f = fpcg3d(ap+vec3(1,0,1)).x;
+    float g = fpcg3d(ap+vec3(0,1,1)).x;
+    float h = fpcg3d(ap+vec3(1,1,1)).x;
+
+    float v = mix(mix(mix(a,b, fr.x),mix(c,d,fr.x), fr.y), mix(mix(e,f, fr.x),mix(g,h,fr.x), fr.y), fr.z);
+    
+
+    
+
+    return v;
+}

@@ -51,6 +51,8 @@ Renderer::Renderer(RendererConfig config, Engine *eng) : m_window(config.width, 
 	// GLint size;
 	// glGetIntegerv(GL_MAX_3D_TEXTURE_SIZE, &size);
 	// std::cerr << "Max 3D texture size: " << size << std::endl;
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  
 
 }
 
