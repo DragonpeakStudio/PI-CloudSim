@@ -15,7 +15,7 @@ Texture3d::Texture3d(void *data, TextureInfo info, int width, int height, int de
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, m_info.wrapS);
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, m_info.wrapT);
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, m_info.filterMin);
-    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, m_info.filterMag);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, m_info.filterMag); 
     glTexImage3D(GL_TEXTURE_3D, 0, m_info.internalFormat, m_width, m_height, m_depth, 0, m_info.format, m_info.type, data);
 }
 
@@ -48,5 +48,4 @@ void Texture3d::bind(GLenum unit)
     glActiveTexture(unit);
     glBindTexture(GL_TEXTURE_3D, m_id);
 }
-
 }

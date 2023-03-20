@@ -22,7 +22,6 @@ CloudVolumeRenderer::CloudVolumeRenderer(std::pair<glm::vec3, glm::vec3> bbox) :
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     m_drawShader.load();
 }
-
 CloudVolumeRenderer::~CloudVolumeRenderer()
 {
     glDeleteBuffers(1, &m_vbo);
@@ -39,10 +38,11 @@ void CloudVolumeRenderer::draw(eng::rndr::Texture3d &densityField, eng::rndr::Re
     m_drawShader.setUniform("densityField", 0);
     m_drawShader.setUniform("bboxMin", m_bbox.first);
     m_drawShader.setUniform("bboxMax", m_bbox.second);
-    m_drawShader.setUniform("invProjView",glm::inverse(renderer.projMat()*renderer.viewMat()));
+    m_drawShader.setUniform("camPos", glm::inverse(renderer.viewMat())[3]);
+    auto vm = renderer.viewMat();
+    vm[3] = glm::vec4(0,0,0,vm[3].w);//Bodge to remove the position component of view matrix, avoiding offset of ray dir
+    m_drawShader.setUniform("invProjView",glm::inverse(renderer.projMat()*vm));
     m_drawShader.setUniform("viewport", viewport);
-
-
     densityField.bind(GL_TEXTURE0);
     glDrawArrays(GL_TRIANGLES, 0, 6);
     glUseProgram(0);
@@ -50,7 +50,6 @@ void CloudVolumeRenderer::draw(eng::rndr::Texture3d &densityField, eng::rndr::Re
     glEnable(GL_DEPTH_TEST);  
 
 }
-
 void CloudVolumeRenderer::drawUI()
 {
 }

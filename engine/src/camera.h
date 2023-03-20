@@ -13,7 +13,7 @@ namespace eng::rndr
 class Camera : public Object
 {
     public:
-        Camera(float fov, float aspect, float near = 0.01f, float far=10000.f, glm::vec3 pos = glm::vec3(0.f,1.f,0.f), glm::vec3 dir = glm::vec3(0.f, 1.f, 0.f), glm::vec3 up = glm::vec3(0.f,0.f,-1.f));
+        Camera(float fov, float aspect, float near = 0.01f, float far=10000.f, glm::vec3 pos = glm::vec3(0.f,0.f,0.f), glm::vec3 dir = glm::vec3(0.f, 1.f, 0.f), glm::vec3 up = glm::vec3(0.f,0.f,-1.f));
         virtual ~Camera(){}
         glm::mat4 getView() const;
         glm::mat4 getProjection() const;
@@ -21,6 +21,7 @@ class Camera : public Object
         virtual void draw(rndr::Renderer &renderer) override;
         virtual void update(double delta) override;
         virtual void onAdd(Engine *engine) override;
+        virtual void drawUI() override;
 
 
     private:
@@ -41,4 +42,4 @@ class Camera : public Object
 };
 }
 
-#endif // CAMERA_H
+#endif // CAMERA_Hs

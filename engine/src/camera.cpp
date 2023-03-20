@@ -38,10 +38,16 @@ void eng::rndr::Camera::onAdd(Engine *engine)
     Object::onAdd(engine);
     m_engine->inputManager().addEventCallback(SDL_MOUSEMOTION, std::bind(&Camera::mouseMotion, this, std::placeholders::_1));
 }
+void eng::rndr::Camera::drawUI()
+{
+    ImGui::Begin("Camera");
+    ImGui::Text("Cam Pos: %f, %f, %f", m_pos.x, m_pos.y, m_pos.z);
+    ImGui::Text("Cam Dir: %f, %f, %f", m_dir.x, m_dir.y, m_dir.z);
+	ImGui::End();
+}
 void eng::rndr::Camera::mouseMotion(const SDL_Event &event)
 {
     if(!m_isUiShown)m_dir = glm::angleAxis(-event.motion.yrel*m_mouseSpeed, glm::cross(m_dir, glm::vec3(0,0,1)))*glm::quat(glm::vec3(0, 0, -event.motion.xrel*m_mouseSpeed))*m_dir;
-
 }
 glm::mat4 eng::rndr::Camera::getProjection() const
 {

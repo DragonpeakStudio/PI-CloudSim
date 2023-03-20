@@ -21,4 +21,4 @@ int main(int, char**)
     engine.addObject(CloudSystem::create<CloudVolumeRenderer, CloudNoiseSimulator>(std::make_pair(glm::vec3(-10,-10,0), glm::vec3(10,10,100)), lighting, 20.f));
     engine.run();
     return 0;
-}
+}   
