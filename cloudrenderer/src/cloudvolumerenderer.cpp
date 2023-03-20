@@ -1,6 +1,6 @@
 #include "cloudvolumerenderer.h"
 
-CloudVolumeRenderer::CloudVolumeRenderer(std::pair<glm::vec3, glm::vec3> bbox) : CloudRenderer(bbox), m_drawShader("../resources/shaders/basic.vert", "../resources/shaders/volumeclouds.frag")
+CloudVolumeRenderer::CloudVolumeRenderer(std::pair<glm::vec3, glm::vec3> bbox, std::weak_ptr<OutdoorLighting> lighting) : CloudRenderer(bbox, lighting), m_drawShader("../resources/shaders/basic.vert", "../resources/shaders/volumeclouds.frag")
 {
     static const glm::vec2 fsq[] = {glm::vec2(-1.,-1.),
 		glm::vec2(1.,1.),
@@ -43,6 +43,16 @@ void CloudVolumeRenderer::draw(eng::rndr::Texture3d &densityField, eng::rndr::Re
     vm[3] = glm::vec4(0,0,0,vm[3].w);//Bodge to remove the position component of view matrix, avoiding offset of ray dir
     m_drawShader.setUniform("invProjView",glm::inverse(renderer.projMat()*vm));
     m_drawShader.setUniform("viewport", viewport);
+
+    auto lighting = m_lighting.lock();
+    m_drawShader.setUniform("sunDir", lighting->sunDir());
+    m_drawShader.setUniform("sunCol", lighting->sunCol()*m_sunBrightness);
+    m_drawShader.setUniform("ambientCol", lighting->ambientCol()*m_ambientBrightness);
+    m_drawShader.setUniform("lightStepSize", m_lightStepSize);
+    m_drawShader.setUniform("lightFar", m_lightFar);
+    m_drawShader.setUniform("lightDensMult", m_lightDensMult);
+    m_drawShader.setUniform("stepSize", m_stepSize);
+
     densityField.bind(GL_TEXTURE0);
     glDrawArrays(GL_TRIANGLES, 0, 6);
     glUseProgram(0);
@@ -52,4 +62,14 @@ void CloudVolumeRenderer::draw(eng::rndr::Texture3d &densityField, eng::rndr::Re
 }
 void CloudVolumeRenderer::drawUI()
 {
+    ImGui::Begin("Cloud Rendering");
+
+    ImGui::SliderFloat("Sun Mult", &m_sunBrightness, 0., 1.);
+    ImGui::SliderFloat("Ambient Mult", &m_ambientBrightness, 0., 1.);
+    ImGui::SliderFloat("Step Size", &m_stepSize, 0., 10.);
+    ImGui::SliderFloat("Light Step Size", &m_lightStepSize, 0., 10.);
+    ImGui::SliderFloat("Light Far", &m_lightFar, 0., 10.);
+    ImGui::SliderFloat("Light Dens Mult", &m_lightDensMult, 0., 5.);
+
+    ImGui::End();
 }

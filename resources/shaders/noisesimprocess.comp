@@ -8,7 +8,24 @@ uniform vec3 bboxMax;
 #include "lib/rand.slib"
 #include "lib/noise.slib"
 
+float fBm(vec3 pos)
+{
+    float d = 0.;
+    float scl = 1.;
+    float amp = 1.;
+    for(int i = 0; i < 4; i++)
+    {
+        d+=noise3D(pos*scl)*amp;
+        amp*=0.5;
+        scl*=2.;
+    }
+    return d/2.;
+}
+
 void main()
 {
-    imageStore(density, ivec3(gl_GlobalInvocationID.xyz), vec4(noise3D(vec3(gl_GlobalInvocationID.xyz)*.001*(bboxMax-bboxMin))*.1));
+    ivec3 size = imageSize(density);
+    vec3 pos = vec3(gl_GlobalInvocationID.xyz)*.005*(bboxMax-bboxMin)/size.x;
+    float dens = (clamp(fBm(pos)*2.-1., 0., 1.)-clamp(pos.z*.02, 0., 1.))*(clamp(pos.z*1., 0., 1.));
+    imageStore(density, ivec3(gl_GlobalInvocationID.xyz), vec4(dens*12.));
 }

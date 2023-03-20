@@ -1,5 +1,5 @@
 #include "cloudsystem.h"
-CloudSystem::CloudSystem(std::unique_ptr<CloudRenderer> renderer, std::unique_ptr<CloudSimulator> simulator, std::pair<glm::vec3, glm::vec3> bbox, std::weak_ptr<OutdoorLighting> lighting) : m_renderer(std::move(renderer)), m_simulator(std::move(simulator)), m_bbox(bbox), m_lighting(lighting)
+CloudSystem::CloudSystem(std::unique_ptr<CloudRenderer> renderer, std::unique_ptr<CloudSimulator> simulator, std::pair<glm::vec3, glm::vec3> bbox) : m_renderer(std::move(renderer)), m_simulator(std::move(simulator)), m_bbox(bbox)
 {
 
 }
@@ -22,5 +22,6 @@ CloudSystem::~CloudSystem()
 }
 void CloudSystem::draw(eng::rndr::Renderer &renderer)
 {
+    glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
     m_renderer->draw(m_simulator->getField("density"), renderer);
 }
