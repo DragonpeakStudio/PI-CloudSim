@@ -33,7 +33,7 @@ vec4 marchClouds(Ray r, float near, float far)
     {
         vec3 pos = r.origin + r.dir*dist;
         pos/=(bboxMin-bboxMax);
-        float dens = .01;
+        float dens = texture(densityField, pos).x;
         if(dens>.001)
         {
             trans *= exp(-dens);
