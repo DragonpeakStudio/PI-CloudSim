@@ -12,6 +12,9 @@ void CloudNoiseSimulator::update(double delta)
 {
     m_time+=delta;
     m_noiseProcess.bind();
+    m_noiseProcess.setUniform("bboxMin", m_bbox.first);
+    m_noiseProcess.setUniform("bboxMax", m_bbox.second);
+
     glBindImageTexture(1, m_densField.id(), 0, false, 0, GL_READ_WRITE, GL_R16F);
     m_noiseProcess.dispatch(glm::uvec3(m_densField.width()/8, m_densField.height()/8, m_densField.depth()/8));
     glUseProgram(0);
