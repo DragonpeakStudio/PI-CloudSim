@@ -27,14 +27,14 @@ vec2 bboxIntersection(Ray r, vec3 boxMin, vec3 boxMax)//https://gist.github.com/
 vec4 marchClouds(Ray r, float near, float far)
 {
     float trans = 1.;
-    vec3 light = vec3(0.);
+    vec3 light = vec3(1.);
     float dist = near;
     while(dist < far)
     {
         vec3 pos = r.origin + r.dir*dist;
         pos/=(bboxMin-bboxMax);
-        float dens = 1.1;
-        if(dens>.01)
+        float dens = .01;
+        if(dens>.001)
         {
             trans *= exp(-dens);
         }
@@ -54,7 +54,7 @@ void main()
         float nearDist = max(.1, dist.x);
         float farDist = min(2000., dist.y);
         vec4 dens = marchClouds(r, nearDist, farDist);
-        FragColor = vec4(nearDist,farDist,0,1);
+        FragColor = vec4(dens);
 
     }
 
