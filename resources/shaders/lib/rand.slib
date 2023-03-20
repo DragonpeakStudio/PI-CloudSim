@@ -63,7 +63,7 @@ uvec4 pcg4d(uvec4 v)
 
 float fpcg(float v)
 {
-    return float(pcg(int(v)))*(1.0/float(0xffffffffU));
+    return float(pcg(uint(v)))*(1.0/float(0xffffffffU));
 }
 vec2 fpcg2d(vec2 v)
 {

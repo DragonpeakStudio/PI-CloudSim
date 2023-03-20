@@ -2,6 +2,7 @@
 in vec2 texCoords;
 out vec4 FragColor;
 uniform sampler3D densityField;
+uniform sampler3D noiseKernal;
 
 uniform float stepSize = .5;
 uniform float lightStepSize = .1;
@@ -18,6 +19,10 @@ uniform vec3 bboxMax;
 uniform vec4 camPos;
 uniform mat4 invProjView;
 uniform ivec4 viewport;
+
+uniform float time;
+
+#include "lib/rand.slib"
 struct Ray
 {
     vec3 origin;
@@ -33,6 +38,16 @@ vec2 bboxIntersection(Ray r, vec3 boxMin, vec3 boxMax)//https://gist.github.com/
     float tFar = min(min(t2.x, t2.y), t2.z);
     return vec2(tNear, tFar);
 }
+float getDensity(vec3 p)
+{
+    p = (p-bboxMin)/(bboxMin-bboxMax);
+    float d = texture(densityField, p).x;
+    d -= texture(noiseKernal, p*5.).x*.5;
+    d -= texture(noiseKernal, (p*7.)+3.58165).y*.25;
+    d -= texture(noiseKernal, (p*12.)+7.273).z*.25;
+
+    return max(d, 0.)*10.;
+}
 vec3 marchLight(Ray r, float near, float far)
 {
     float dist = near;
@@ -40,11 +55,11 @@ vec3 marchLight(Ray r, float near, float far)
     while(dist < far)
     {
         vec3 pos = r.origin + r.dir*dist;;
-        float dens = texture(densityField, (pos-bboxMin)/(bboxMin-bboxMax)).x;
+        float dens = getDensity(pos);
         dist+=lightStepSize;
-        totDens+=dens;
+        totDens+=dens*lightStepSize;
     }
-    return vec3(exp(-(totDens/lightStepSize)*lightDensMult)*sunCol+ambientCol);
+    return vec3(exp(-(totDens)*lightDensMult)*sunCol+ambientCol);
 }
 vec4 marchClouds(Ray r, float near, float far)
 {
@@ -54,22 +69,24 @@ vec4 marchClouds(Ray r, float near, float far)
     while(dist < far)
     {
         vec3 pos = r.origin + r.dir*dist;
-        float dens = texture(densityField, (pos-bboxMin)/(bboxMin-bboxMax)).x;
-        if(dens>.001)
+        float dens = getDensity(pos);
+        float st = stepSize;
+        
+        if(dens>.05)
         {
             vec2 dist =  bboxIntersection(r, bboxMin, bboxMax);
             trans *= exp(-dens);
-            light += marchLight(Ray(pos, sunDir), .01, min(dist.y, lightFar))*dens*trans;
+            light += marchLight(Ray(pos, sunDir), .01, min(dist.y, lightFar))*dens*trans*st;
         }
         if(trans < .01)
         {
             trans =  0.;
             break;
         }
-        dist+=stepSize;
+        dist+=st;
 
     }
-    return vec4(light/stepSize, 1.-trans);
+    return vec4(light, 1.-trans);
 }
 void main()
 {
@@ -81,7 +98,7 @@ void main()
     {
         float nearDist = max(.1, dist.x);
         float farDist = min(2000., dist.y);
-        vec4 dens = marchClouds(r, nearDist, farDist);
+        vec4 dens = marchClouds(r, nearDist+=fpcg3d(vec3(texCoords.xy*viewport.zw, time)).x*stepSize, farDist);//TODO use blue noise for better dithering
         FragColor = vec4(dens);
 
     }
