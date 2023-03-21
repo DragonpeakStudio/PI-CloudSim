@@ -2,7 +2,6 @@
 in vec2 texCoords;
 out vec4 FragColor;
 uniform sampler3D densityField;
-uniform sampler3D noiseKernal;
 
 uniform float stepSize = .5;
 uniform float lightStepSize = .1;
@@ -45,9 +44,7 @@ float getDensity(vec3 p)
     float d = texture(densityField, (p-bboxMin)/(bboxMin-bboxMax)*.99).x;
     if(d>0.)
     {
-        d -= texture(noiseKernal, p*.5).x*.3;
-        d -= texture(noiseKernal, p*.3+5125.68876).y*.3;
-
+        d-=fBm(p*.1, 4)*.2;
     }
 
 

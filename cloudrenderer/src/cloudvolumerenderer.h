@@ -28,8 +28,5 @@ class CloudVolumeRenderer : public CloudRenderer
         float m_lightStepSize = .1;
         int m_debugSlice = 0;
         float m_time = 1.;
-        eng::rndr::Texture3d m_noiseKernal;
-        eng::rndr::ComputeShaderProgram m_noiseKernalGenerator;
-        Texture3dSlicer m_slicer;
 };
 #endif
