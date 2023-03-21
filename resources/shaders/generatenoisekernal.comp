@@ -7,27 +7,14 @@ layout (binding = 1, rgba16f) uniform image3D kernal;
 #include "lib/rand.slib"
 #include "lib/noise.slib"
 
-float fBm(vec3 pos)
-{
-    float d = 0.;
-    float scl = 1.;
-    float amp = 1.;
-    for(int i = 0; i < 4; i++)
-    {
-        d+=noise3D(pos*scl)*amp;
-        amp*=0.5;
-        scl*=2.;
-    }
-    return d/2.;
-}
-
 void main()
 {
     ivec3 size = imageSize(kernal);
     vec3 pos = vec3(gl_GlobalInvocationID.xyz)/size;
-    float densa = fBm(pos);
-    float densb = fBm(pos*2.+vec3(12512.41));
-    float densc = fBm(pos*4.+vec3(234.13));
-    float densd = fBm(pos*8.+vec3(590.63));
+    pos = abs(pos*2.-1);//TODO better seamless technique
+    float densa = fBm(pos, 4);
+    float densb = fBm(pos*2.+vec3(12512.41), 4);
+    float densc = fBm(pos*4.+vec3(234.13), 4);
+    float densd = fBm(pos*8.+vec3(590.63), 4);
     imageStore(kernal, ivec3(gl_GlobalInvocationID.xyz), vec4(densa, densb, densc, densd));
 }

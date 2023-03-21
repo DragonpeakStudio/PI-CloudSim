@@ -40,3 +40,16 @@ float noise3D(vec3 p)
 
     return v;
 }
+float fBm(vec3 pos, int oct)
+{
+    float d = 0.;
+    float scl = 1.;
+    float amp = 1.;
+    for(int i = 0; i < oct; i++)
+    {
+        d+=noise3D(pos*scl)*amp;
+        amp*=0.5;
+        scl*=2.;
+    }
+    return clamp((d/float(oct))*2., 0., 1.);
+}

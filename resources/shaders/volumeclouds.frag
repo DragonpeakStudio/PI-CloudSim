@@ -23,6 +23,8 @@ uniform ivec4 viewport;
 uniform float time;
 
 #include "lib/rand.slib"
+#include "lib/noise.slib"
+
 struct Ray
 {
     vec3 origin;
@@ -40,11 +42,14 @@ vec2 bboxIntersection(Ray r, vec3 boxMin, vec3 boxMax)//https://gist.github.com/
 }
 float getDensity(vec3 p)
 {
-    p = (p-bboxMin)/(bboxMin-bboxMax);
-    float d = texture(densityField, p).x;
-    d -= texture(noiseKernal, p*5.).x*.5;
-    d -= texture(noiseKernal, (p*7.)+3.58165).y*.25;
-    d -= texture(noiseKernal, (p*12.)+7.273).z*.25;
+    float d = texture(densityField, (p-bboxMin)/(bboxMin-bboxMax)*.99).x;
+    if(d>0.)
+    {
+        d -= texture(noiseKernal, p*.5).x*.3;
+        d -= texture(noiseKernal, p*.3+5125.68876).y*.3;
+
+    }
+
 
     return max(d, 0.)*10.;
 }
@@ -84,7 +89,6 @@ vec4 marchClouds(Ray r, float near, float far)
             break;
         }
         dist+=st;
-
     }
     return vec4(light, 1.-trans);
 }
