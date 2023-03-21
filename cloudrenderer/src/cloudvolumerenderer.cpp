@@ -67,13 +67,12 @@ void CloudVolumeRenderer::drawUI()
 {
     ImGui::Begin("Cloud Rendering");
 
-    ImGui::SliderFloat("Sun Mult", &m_sunBrightness, 0., 1.);
-    ImGui::SliderFloat("Ambient Mult", &m_ambientBrightness, 0., 1.);
-    ImGui::SliderFloat("Step Size", &m_stepSize, 0., 100.);
-    ImGui::SliderFloat("Light Step Size", &m_lightStepSize, 0., 10.);
-    ImGui::SliderFloat("Light Far", &m_lightFar, 0., 10.);
+    ImGui::SliderFloat("Sun Mult", &m_sunBrightness, 0., 3.);
+    ImGui::SliderFloat("Ambient Mult", &m_ambientBrightness, 0., 3.);
+    ImGui::SliderFloat("Step Size", &m_stepSize, .5, 100.);
+    ImGui::SliderFloat("Light Step Size", &m_lightStepSize, .2, 10.);
+    ImGui::SliderFloat("Light Far", &m_lightFar, 0., 50.);
     ImGui::SliderFloat("Light Dens Mult", &m_lightDensMult, 0., 5.);
-
     ImGui::End();
 }
 

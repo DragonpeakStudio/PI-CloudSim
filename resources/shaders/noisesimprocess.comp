@@ -5,15 +5,17 @@ layout (binding = 1, r16f) uniform image3D density;
 uniform vec3 bboxMin;
 uniform vec3 bboxMax;
 
+uniform vec3 windDir;
+uniform float time;
+
 #include "lib/rand.slib"
 #include "lib/noise.slib"
-
-
 
 void main()
 {
     ivec3 size = imageSize(density);
     vec3 pos = vec3(gl_GlobalInvocationID.xyz)*.005*(bboxMax-bboxMin)/size.x;
+    pos+=windDir*time;
     float dens = (clamp(fBm(pos, 4)*2.-1., 0., 1.)-clamp(pos.z*3.-1.15, 0., 1.))*(clamp(pos.z*.5, 0., 1.));
     imageStore(density, ivec3(gl_GlobalInvocationID.xyz), vec4(max(dens*20., 0.)));
 }

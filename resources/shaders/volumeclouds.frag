@@ -59,7 +59,7 @@ vec3 marchLight(Ray r, float near, float far)
         vec3 pos = r.origin + r.dir*dist;;
         float dens = getDensity(pos);
         dist+=lightStepSize;
-        totDens+=dens*lightStepSize;
+        totDens+=dens;
     }
     return vec3(exp(-(totDens)*lightDensMult)*sunCol+ambientCol);
 }
@@ -74,11 +74,11 @@ vec4 marchClouds(Ray r, float near, float far)
         float dens = getDensity(pos);
         float st = stepSize;
         
-        if(dens>.05)
+        if(dens>.01)
         {
             vec2 dist =  bboxIntersection(r, bboxMin, bboxMax);
             trans *= exp(-dens);
-            light += marchLight(Ray(pos, sunDir), .01, min(dist.y, lightFar))*dens*trans*st;
+            light += marchLight(Ray(pos, sunDir), .01, min(dist.y, lightFar))*dens*trans;
         }
         if(trans < .01)
         {

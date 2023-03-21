@@ -20,12 +20,12 @@ class CloudVolumeRenderer : public CloudRenderer
         GLuint m_vbo = 0;
         GLuint m_vao = 0;
         eng::rndr::VFShaderProgram m_drawShader;
-        float m_ambientBrightness = .05;
-        float m_sunBrightness = .3;
-        float m_stepSize = 5;
-        float m_lightFar = 1.;
-        float m_lightDensMult = .5; 
-        float m_lightStepSize = .1;
+        float m_ambientBrightness = .15;
+        float m_sunBrightness = 1.;
+        float m_stepSize = 1;
+        float m_lightFar = 25.;
+        float m_lightDensMult = .2; 
+        float m_lightStepSize = 1.;
         int m_debugSlice = 0;
         float m_time = 1.;
 };

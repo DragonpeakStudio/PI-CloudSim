@@ -22,6 +22,8 @@ class CloudNoiseSimulator : public CloudSimulator
         Texture3dSlicer m_slicer;
         double m_time = 0.;
         int m_debugSlice = 0;
+        float m_windAngle = 0.;
+        float m_windSpeed = .1;
 
 };
 
