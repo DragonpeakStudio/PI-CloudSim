@@ -15,6 +15,9 @@ void eng::rndr::Camera::draw(rndr::Renderer &renderer)
 {
     renderer.setViewMat(getView());
     renderer.setProjMat(getProjection());
+    renderer.setNearPlane(m_near);
+    renderer.setFarPlane(m_far);
+
     m_isUiShown = renderer.isUiShown();//this is a total bodge to allow disabling mouse motion when ui is off
 }
 void eng::rndr::Camera::update(double delta)

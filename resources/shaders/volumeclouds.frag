@@ -2,11 +2,14 @@
 in vec2 texCoords;
 out vec4 FragColor;
 uniform sampler3D densityField;
+uniform sampler2D sceneDepth;
 
 uniform float stepSize = .5;
 uniform float lightStepSize = .1;
 uniform float lightFar = 1.;
 uniform float lightDensMult = .5;
+uniform float densMult = 10.;
+
 
 uniform vec3 sunDir;
 uniform vec3 sunCol;
@@ -18,6 +21,9 @@ uniform vec3 bboxMax;
 uniform vec4 camPos;
 uniform mat4 invProjView;
 uniform ivec4 viewport;
+uniform float nearPlane = .1;
+uniform float farPlane = 1000.;
+
 
 uniform float time;
 
@@ -39,6 +45,14 @@ vec2 bboxIntersection(Ray r, vec3 boxMin, vec3 boxMax)//https://gist.github.com/
     float tFar = min(min(t2.x, t2.y), t2.z);
     return vec2(tNear, tFar);
 }
+
+float linearizeDepth(float d,float zNear,float zFar)//https://stackoverflow.com/questions/51108596/linearize-depth
+{
+    float z_n = 2.0 * d - 1.0;
+    return 2.0 * zNear * zFar / (zFar + zNear - z_n * (zFar - zNear));
+}
+
+
 float getDensity(vec3 p)
 {
     float d = texture(densityField, (p-bboxMin)/(bboxMin-bboxMax)*.99).x;
@@ -46,9 +60,7 @@ float getDensity(vec3 p)
     {
         d-=fBm(p*.1, 4)*.2;
     }
-
-
-    return max(d, 0.)*10.;
+    return max(d, 0.)*densMult;
 }
 vec3 marchLight(Ray r, float near, float far)
 {
@@ -95,13 +107,13 @@ void main()
     Ray r =  Ray(camPos.xyz, (invProjView*vec4(position, 0., 1.)).xyz);
     vec2 dist =  bboxIntersection(r, bboxMin, bboxMax);
     FragColor = vec4(0);
+    float sceneDist = linearizeDepth(texture(sceneDepth, texCoords).x, nearPlane, farPlane);
     if(dist.x <= dist.y && (dist.x > 0. || dist.y > 0.))
     {
-        float nearDist = max(.1, dist.x);
-        float farDist = min(2000., dist.y);
+        float nearDist = max(nearPlane, dist.x);
+        float farDist = min(sceneDist, dist.y);
         vec4 dens = marchClouds(r, nearDist+=fpcg3d(vec3(texCoords.xy*viewport.zw, time)).x*stepSize, farDist);//TODO use blue noise for better dithering
         FragColor = vec4(dens);
-
     }
 
 }

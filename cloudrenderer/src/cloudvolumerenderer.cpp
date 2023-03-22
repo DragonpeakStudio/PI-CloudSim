@@ -30,6 +30,7 @@ CloudVolumeRenderer::~CloudVolumeRenderer()
 }
 void CloudVolumeRenderer::draw(eng::rndr::Texture3d &densityField, eng::rndr::Renderer &renderer)//TODO offscreen draw to allow lowres volume rendering
 {
+    glMemoryBarrier(GL_FRAMEBUFFER_BARRIER_BIT);
     m_time+=1;
     glm::ivec4 viewport; 
     glGetIntegerv( GL_VIEWPORT, &viewport.x );
@@ -37,6 +38,9 @@ void CloudVolumeRenderer::draw(eng::rndr::Texture3d &densityField, eng::rndr::Re
     glBindVertexArray(m_vao);
     m_drawShader.bind();
     m_drawShader.setUniform("densityField", 0);
+
+    m_drawShader.setUniform("sceneDepth", 1);//TODO get depth working
+
     m_drawShader.setUniform("bboxMin", m_bbox.first);
     m_drawShader.setUniform("bboxMax", m_bbox.second);
     m_drawShader.setUniform("camPos", glm::inverse(renderer.viewMat())[3]);
@@ -54,9 +58,16 @@ void CloudVolumeRenderer::draw(eng::rndr::Texture3d &densityField, eng::rndr::Re
     m_drawShader.setUniform("lightDensMult", m_lightDensMult);
     m_drawShader.setUniform("stepSize", m_stepSize);
     m_drawShader.setUniform("time", m_time);
+    m_drawShader.setUniform("densMult", m_densMult);
+
+    m_drawShader.setUniform("nearPlane", renderer.nearPlane());
+    m_drawShader.setUniform("farPlane", renderer.farPlane());
+
+
 
 
     densityField.bind(GL_TEXTURE0);
+    renderer.frameBuffer().frameBufferDepthTexture()->bind(GL_TEXTURE1);
     glDrawArrays(GL_TRIANGLES, 0, 6);
     glUseProgram(0);
     glBindVertexArray(0);
@@ -69,11 +80,11 @@ void CloudVolumeRenderer::drawUI()
 
     ImGui::SliderFloat("Sun Mult", &m_sunBrightness, 0., 3.);
     ImGui::SliderFloat("Ambient Mult", &m_ambientBrightness, 0., 3.);
+    ImGui::SliderFloat("Dens Mult", &m_densMult, 0., 50.);
+
     ImGui::SliderFloat("Step Size", &m_stepSize, .5, 100.);
-    ImGui::SliderFloat("Light Step Size", &m_lightStepSize, .2, 10.);
+    ImGui::SliderFloat("Light Step Size", &m_lightStepSize, .2, 20.);
     ImGui::SliderFloat("Light Far", &m_lightFar, 0., 50.);
     ImGui::SliderFloat("Light Dens Mult", &m_lightDensMult, 0., 5.);
     ImGui::End();
 }
-
-

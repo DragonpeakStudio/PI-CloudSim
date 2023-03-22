@@ -24,8 +24,9 @@ class CloudVolumeRenderer : public CloudRenderer
         float m_sunBrightness = 1.;
         float m_stepSize = 1;
         float m_lightFar = 25.;
-        float m_lightDensMult = .2; 
-        float m_lightStepSize = 1.;
+        float m_lightDensMult = .4; 
+        float m_densMult = 10.;
+        float m_lightStepSize = 8.;
         int m_debugSlice = 0;
         float m_time = 1.;
 };

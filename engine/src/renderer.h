@@ -47,6 +47,14 @@ class Renderer
         void setViewMat(glm::mat4 viewMat);
 
         bool isUiShown() const;
+
+        FrameBuffer &frameBuffer();
+
+        float nearPlane() const;
+        void setNearPlane(float nearPlane_);
+
+        float farPlane() const;
+        void setFarPlane(float farPlane_);
     
     private:
         void drawUI();
@@ -59,6 +67,8 @@ class Renderer
         Engine *m_engine;
         bool m_isUiShown = true;
         FrameBuffer m_frameBuffer;
+        float m_nearPlane;
+        float m_farPlane;
 
 
 };

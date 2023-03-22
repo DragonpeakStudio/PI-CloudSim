@@ -96,9 +96,29 @@ glm::mat4 Renderer::viewMat() const
 {
     return m_viewMat;
 }
+FrameBuffer &Renderer::frameBuffer()
+{
+    return m_frameBuffer;
+}
+float Renderer::farPlane() const
+{
+    return m_farPlane;
+}
+void Renderer::setFarPlane(float farPlane_)
+{
+    m_farPlane = farPlane_;
+}
 void Renderer::setViewMat(glm::mat4 viewMat)
 {
     m_viewMat = viewMat;
+}
+float Renderer::nearPlane() const
+{
+    return m_nearPlane;
+}
+void Renderer::setNearPlane(float nearPlane_)
+{
+    m_nearPlane = nearPlane_;
 }
 void Renderer::drawUI()
 {
