@@ -69,6 +69,11 @@ Texture2d::~Texture2d()
 {
 }
 
+TextureInfo Texture2d::info() const
+{
+    return m_info;
+}
+
 int Texture2d::width() const
 {
     return m_width;

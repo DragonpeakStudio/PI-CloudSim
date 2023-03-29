@@ -1,0 +1,20 @@
+#version 460 core
+layout(local_size_x = 8, local_size_y = 8, local_size_z = 8) in;
+
+layout (binding = 1, r8) uniform image3D result;
+uniform sampler2D heightMap;
+uniform vec3 bboxMin;
+uniform vec3 bboxMax;
+
+void main()
+{
+    vec4 data = vec4(0);
+    ivec3 size = imageSize(result);
+    vec3 pos = vec3(gl_GlobalInvocationID.xyz);//TODO proper support for differently sized terrains
+    pos.z += bboxMin.z;
+    if(texture(heightMap, pos.xy/vec3(size).xy).x > pos.z)
+    {
+        data = vec4(1);
+    }
+    imageStore(result, ivec3(gl_GlobalInvocationID.xyz), data);
+}

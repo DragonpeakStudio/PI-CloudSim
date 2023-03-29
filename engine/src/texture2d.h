@@ -20,6 +20,8 @@ class Texture2d : public Texture
 
 		int height() const;
 
+		TextureInfo info() const;
+
     
     protected:
         void fromData(void *data);

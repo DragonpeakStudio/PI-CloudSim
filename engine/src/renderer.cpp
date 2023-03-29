@@ -143,4 +143,4 @@ void Renderer::addDrawable(std::shared_ptr<Object> obj)
 {
 	m_drawables.push_back(obj);
 }
-}
+}	

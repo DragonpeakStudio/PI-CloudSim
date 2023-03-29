@@ -34,9 +34,6 @@ float noise3D(vec3 p)
     float h = fpcg3d(ap+vec3(1,1,1)).x;
 
     float v = mix(mix(mix(a,b, fr.x),mix(c,d,fr.x), fr.y), mix(mix(e,f, fr.x),mix(g,h,fr.x), fr.y), fr.z);
-    
-
-    
 
     return v;
 }

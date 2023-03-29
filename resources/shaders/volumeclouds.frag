@@ -52,7 +52,6 @@ float linearizeDepth(float d,float zNear,float zFar)//https://stackoverflow.com/
     return 2.0 * zNear * zFar / (zFar + zNear - z_n * (zFar - zNear));
 }
 
-
 float getDensity(vec3 p)
 {
     float d = texture(densityField, (p-bboxMin)/(bboxMin-bboxMax)*.99).x;
