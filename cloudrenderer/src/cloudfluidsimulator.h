@@ -30,9 +30,9 @@ class CloudFluidSimulator : public CloudSimulator
         eng::rndr::ComputeShaderProgram m_pressureItr;
         eng::rndr::ComputeShaderProgram m_applyPressureGrad;
 
+        unsigned int m_pressureItrs = 20;
 
-
-
+        void advectField(Swappable3DTexture &field, eng::rndr::Texture3d &velField, float delta);
 
 };
 

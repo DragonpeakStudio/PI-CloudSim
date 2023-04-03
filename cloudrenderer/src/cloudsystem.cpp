@@ -11,11 +11,19 @@ void CloudSystem::update(double delta)
 {
     m_simulator->update(delta);
 }
+CloudRenderer *CloudSystem::renderer()
+{
+    return m_renderer.get();
+}
 void CloudSystem::drawUI()
 {
     //TODO
     m_simulator->drawUI();
     m_renderer->drawUI();
+}
+CloudSimulator *CloudSystem::simulator()
+{
+    return m_simulator.get();
 }
 CloudSystem::~CloudSystem()
 {

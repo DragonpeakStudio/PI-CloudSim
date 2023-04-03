@@ -4,6 +4,7 @@
 #include "outdoorlighting.h"
 #include "cloudsystem.h"
 #include "cloudnoisesimulator.h"
+#include "cloudfluidsimulator.h"
 #include "cloudvolumerenderer.h"
 #include "heightmapvoxelizer.h"
 int main(int, char**) 
@@ -21,7 +22,9 @@ int main(int, char**)
     engine.addObject(std::make_shared<eng::rndr::Camera>(80., (float)width/(float)height));
     engine.addObject(terrain);
     engine.addObject(lighting);
-    engine.addObject(CloudSystem::create<CloudVolumeRenderer, CloudNoiseSimulator>(std::make_pair(glm::vec3(-500,-500,0), glm::vec3(500,500,100)), lighting, 5.f));
+    auto cloudSystem = CloudSystem::create<CloudVolumeRenderer, CloudFluidSimulator>(std::make_pair(glm::vec3(-500,-500,0), glm::vec3(500,500,100)), lighting, 5.f);
+    ((CloudFluidSimulator*)cloudSystem->simulator())->setCollisionField(std::move(collision));
+    engine.addObject(cloudSystem);
     engine.run();
     return 0;
 }

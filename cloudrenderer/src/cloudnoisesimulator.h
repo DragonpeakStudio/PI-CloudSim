@@ -24,7 +24,6 @@ class CloudNoiseSimulator : public CloudSimulator
         int m_debugSlice = 0;
         float m_windAngle = 0.;
         float m_windSpeed = .1;
-
 };
 
 #endif

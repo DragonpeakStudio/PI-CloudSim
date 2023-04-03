@@ -3,6 +3,11 @@ Swappable3DTexture::Swappable3DTexture(void *data, eng::rndr::TextureInfo info, 
 {
 }
 
+void Swappable3DTexture::swap()
+{
+    m_isAActive=!m_isAActive;
+}
+
 eng::rndr::Texture3d &Swappable3DTexture::getA()
 {
     return m_a;
@@ -21,5 +26,5 @@ eng::rndr::Texture3d &Swappable3DTexture::getActive()
 eng::rndr::Texture3d &Swappable3DTexture::getNonActive()
 {
     return (!m_isAActive) ? m_a : m_b;
-
 }
+
