@@ -87,15 +87,15 @@ void CloudFluidSimulator::update(double delta)
     m_calcDivergence.dispatch(glm::uvec3(m_pressureAndDivergence.getActive().width()/8, m_pressureAndDivergence.getActive().height()/8, m_pressureAndDivergence.getActive().depth()/8));
     m_pressureAndDivergence.swap();
     //}
-    glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT | GL_TEXTURE_FETCH_BARRIER_BIT);
-
+    glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT | GL_TEXTURE_FETCH_BARRIER_BIT); 
+    
     //{//pressureitr.comp basic jacobbi for now
         //compute pressure, accounting for boundaries
-    m_pressureItr.bind();
-    m_pressureItr.setUniform("outPressureAndDivergence", 0);
-    m_pressureItr.setUniform("inPressureAndDivergence", 1);
     for(unsigned int i = 0; i < m_pressureItrs; i++)
     {
+        m_pressureItr.bind();
+        m_pressureItr.setUniform("outPressureAndDivergence", 0);
+        m_pressureItr.setUniform("inPressureAndDivergence", 1);
         m_pressureAndDivergence.getNonActive().bind(GL_TEXTURE1);
         glBindImageTexture(0, m_pressureAndDivergence.getActive().id(), 0, false, 0, GL_WRITE_ONLY, m_pressureAndDivergence.getActive().info().internalFormat);
         m_pressureItr.dispatch(glm::uvec3(m_pressureAndDivergence.getActive().width()/8, m_pressureAndDivergence.getActive().height()/8, m_pressureAndDivergence.getActive().depth()/8));

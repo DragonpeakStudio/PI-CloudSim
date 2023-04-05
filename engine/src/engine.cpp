@@ -21,7 +21,6 @@ InputManager &Engine::inputManager()
 {
 	return m_inputManager;
 }
-
 void Engine::exit()
 {
 	m_state = STOPPED;

@@ -13,7 +13,7 @@ void main()
     vec3 res = vec3(gl_WorkGroupSize*gl_NumWorkGroups);
     vec3 pos = (vec3(gl_GlobalInvocationID.xyz)+.5)*.5/res.x;
 
-    imageStore(outqc, ivec3(gl_GlobalInvocationID).xyz, vec4(clamp(fBm(pos*5., 4)-.5, 0., 1.)*5., 0, 0, 0));
-    imageStore(outVelocity, ivec3(gl_GlobalInvocationID).xyz, vec4(.1, 0, 0, 1));
+    imageStore(outqc, ivec3(gl_GlobalInvocationID).xyz, vec4(clamp(fBm(pos*10., 4)-.56, 0., 1.)*5., 0, 0, 0));
+    imageStore(outVelocity, ivec3(gl_GlobalInvocationID).xyz, vec4(.1, 0+noise3D(pos*8.)*.5-.25, 0, 1));
 
 }

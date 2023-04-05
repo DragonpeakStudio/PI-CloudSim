@@ -37,7 +37,7 @@ Renderer::Renderer(RendererConfig config, Engine *eng) : m_window(config.width, 
 		SDL_SetRelativeMouseMode((SDL_bool)!isUiShown);
 		
 	});
-	
+
 	IMGUI_CHECKVERSION();
     ImGui::CreateContext();
 	m_imguiIo = ImGui::GetIO();

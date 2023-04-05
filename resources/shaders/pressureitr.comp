@@ -19,7 +19,8 @@ void main()
     float p4 = texture(inPressureAndDivergence, vec3(gl_GlobalInvocationID.xyz+vec3(0,1,0)+.5)/res).x;
     float p5 = texture(inPressureAndDivergence, vec3(gl_GlobalInvocationID.xyz+vec3(0,0,-1)+.5)/res).x;
     float p6 = texture(inPressureAndDivergence, vec3(gl_GlobalInvocationID.xyz+vec3(0,0,1)+.5)/res).x;
-    float div = texture(inPressureAndDivergence, pos/res).y;
+    vec2 current = texture(inPressureAndDivergence, pos).xy;
 
-    float pressure = (div+p1+p2+p3+p4+p5+p6)/6.;
+    float pressure = (current.y+p1+p2+p3+p4+p5+p6)/6.;
+    imageStore(outPressureAndDivergence, ivec3(gl_GlobalInvocationID.xyz), vec4(pressure, current.y,0,0));
 }

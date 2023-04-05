@@ -15,6 +15,6 @@ void main()
     float yDif = (texture(inPressureAndDivergence, vec3(gl_GlobalInvocationID.xyz+vec3(0,1, 0)+.5)/res).x-texture(inPressureAndDivergence, vec3(gl_GlobalInvocationID.xyz+vec3(0,-1, 0)+.5)/res).x)/2.;
     float zDif = (texture(inPressureAndDivergence, vec3(gl_GlobalInvocationID.xyz+vec3(0,0, 1)+.5)/res).x-texture(inPressureAndDivergence, vec3(gl_GlobalInvocationID.xyz+vec3(0,0, -1)+.5)/res).x)/2.;
 
-    imageStore(outVelocity, ivec3(gl_GlobalInvocationID.xyz), vec4(vec3(texture(inVelocity, pos).xyz-vec3(xDif,yDif,zDif)),1));
+    imageStore(outVelocity, ivec3(gl_GlobalInvocationID.xyz), vec4(vec3(texture(inVelocity, pos).xyz+vec3(xDif,yDif,zDif)),1));
 
 }
