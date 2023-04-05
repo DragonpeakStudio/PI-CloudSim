@@ -37,13 +37,11 @@ Renderer::Renderer(RendererConfig config, Engine *eng) : m_window(config.width, 
 		SDL_SetRelativeMouseMode((SDL_bool)!isUiShown);
 		
 	});
-
+	
 	IMGUI_CHECKVERSION();
     ImGui::CreateContext();
 	m_imguiIo = ImGui::GetIO();
-
     ImGui::StyleColorsDark();
-
 	ImGui_ImplSDL2_InitForOpenGL(m_window.window(), m_glContext);
 	ImGui_ImplOpenGL3_Init("#version 150");
 
@@ -53,9 +51,7 @@ Renderer::Renderer(RendererConfig config, Engine *eng) : m_window(config.width, 
 	// std::cerr << "Max 3D texture size: " << size << std::endl;
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  
-
 }
-
 Renderer::~Renderer()
 {
     SDL_GL_DeleteContext(m_glContext);

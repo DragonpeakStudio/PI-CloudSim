@@ -21,6 +21,11 @@ void CloudSystem::drawUI()
     m_simulator->drawUI();
     m_renderer->drawUI();
 }
+void CloudSystem::onAdd(eng::Engine *engine)
+{
+    eng::Object::onAdd(engine);
+    m_simulator->init();
+}
 CloudSimulator *CloudSystem::simulator()
 {
     return m_simulator.get();

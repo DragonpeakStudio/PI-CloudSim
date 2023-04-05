@@ -22,6 +22,7 @@ class CloudSystem : public eng::Object
         virtual void draw(eng::rndr::Renderer &renderer) override;
         virtual void update(double delta) override;
         virtual void drawUI() override;
+        virtual void onAdd(eng::Engine *engine) override;
         std::pair<glm::vec3, glm::vec3> bbox() const;
         CloudRenderer *renderer();
         CloudSimulator *simulator();

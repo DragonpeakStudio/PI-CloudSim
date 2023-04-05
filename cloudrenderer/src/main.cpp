@@ -9,8 +9,8 @@
 #include "heightmapvoxelizer.h"
 int main(int, char**) 
 {
-    const int width = 1280;
-    const int height = 720;
+    const int width = 1920;
+    const int height = 1080;
     auto engine = eng::Engine(eng::EngineConfig{eng::rndr::RendererConfig{"Realtime Cloud Simulation and Rendering", width, height, 4, 5}});
     std::shared_ptr<OutdoorLighting> lighting = std::make_shared<OutdoorLighting>();
     auto heightMap = std::make_unique<eng::rndr::Texture2d>("../resources/terrain/export/height.tiff", eng::rndr::TextureInfo{GL_REPEAT, GL_REPEAT, GL_LINEAR, GL_LINEAR, GL_RED, 1, GL_R16F, GL_FLOAT});

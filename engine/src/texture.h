@@ -20,7 +20,7 @@ class Texture
         
     
     protected:
-        GLuint m_id;
+        GLuint m_id = 0;
 };
 }
 #endif
