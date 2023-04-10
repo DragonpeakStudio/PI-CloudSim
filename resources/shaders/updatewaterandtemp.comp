@@ -8,13 +8,64 @@ layout (binding = 1) writeonly restrict uniform image3D outqc;
 uniform sampler3D inqvAndTemp;
 uniform sampler3D inqc;
 
-
+uniform float basePressure = 100.;
+uniform float baseTemperature = 300.;
+uniform float altitudeOffset = 0.;
+const float RD = 287.;
+const float LAPSE_RATE = 10.;
+const float GRAVITY = 9.81;
+const float DRY_SPECIFIC_HEAT = 1.0035;
+const float LATENT_HEAT = 2.501;
+float calcPressure(float z)
+{
+    return basePressure*pow(1.-(z*LAPSE_RATE)/baseTemperature, GRAVITY/(LAPSE_RATE*RD));
+}
+float calcTemp(float potentialTemp, float pressure)
+{
+    float k = RD/DRY_SPECIFIC_HEAT;
+    return potentialTemp/pow(basePressure/pressure, k);
+}
+float calcQVS(float temp, float pressure)
+{
+    return (380.16/pressure)*exp((17.67*temp)/(temp+243.5));
+}
 void main()
 {
-    //for now just copy
     vec3 res = vec3(gl_WorkGroupSize*gl_NumWorkGroups);
     vec3 pos = (vec3(gl_GlobalInvocationID.xyz)+.5)/res;
-    imageStore(outqvAndTemp, ivec3(gl_GlobalInvocationID.xyz), texture(inqvAndTemp, pos));
-    imageStore(outqc, ivec3(gl_GlobalInvocationID.xyz), texture(inqc, pos));
+
+    vec4 lastqvAndTemp = texture(inqvAndTemp, pos);
+    vec4 lastqc = texture(inqc, pos);
+
+
+    //update water
+
+    //calc presure
+    float pressure = calcPressure(gl_GlobalInvocationID.z+altitudeOffset);//TODO account for bbox and units
+    //calc temp using current potential temp
+    float temp = calcTemp(lastqvAndTemp.y, pressure);
+    //calc qvs w/ temp and pressure
+    float qvs = calcQVS(temp, pressure);
+    //calc dqv w/ qvs
+    float dqv = min(qvs, min(-lastqvAndTemp.x, lastqc.x));
+
+
+    //calc qc w/ dqv
+    float qv = lastqvAndTemp.x + dqv;
+    //calc qv w/ dqv
+    float qc = lastqc.x - dqv;
+
+    //update temp
+
+    //dC = -dqv
+
+    // calc eq w/L cp, exner, dC
+    float inter = (LATENT_HEAT/(DRY_SPECIFIC_HEAT*pow(pressure/basePressure, RD/DRY_SPECIFIC_HEAT)))*-dqv;
+
+    //calc temp w/ temp' + eq
+    float resultTemp = lastqvAndTemp.y + inter;
+
+    imageStore(outqvAndTemp, ivec3(gl_GlobalInvocationID.xyz), vec4(qv, resultTemp,0,0));
+    imageStore(outqc, ivec3(gl_GlobalInvocationID.xyz), vec4(qc));
 
 }
