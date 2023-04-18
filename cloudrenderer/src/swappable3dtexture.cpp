@@ -27,4 +27,3 @@ eng::rndr::Texture3d &Swappable3DTexture::getNonActive()
 {
     return (!m_isAActive) ? m_a : m_b;
 }
-

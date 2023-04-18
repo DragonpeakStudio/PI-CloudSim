@@ -8,9 +8,9 @@ layout (binding = 1) writeonly restrict uniform image3D outqc;
 uniform sampler3D inqvAndTemp;
 uniform sampler3D inqc;
 
-uniform float basePressure = 100.;
+uniform float basePressure = 99.;
 uniform float baseTemperature = 300.;
-uniform float altitudeOffset = 0.;
+uniform float altitudeOffset = 100000.;
 const float RD = 287.;
 const float LAPSE_RATE = 10.;
 const float GRAVITY = 9.81;
@@ -60,12 +60,15 @@ void main()
     //dC = -dqv
 
     // calc eq w/L cp, exner, dC
-    float inter = (LATENT_HEAT/(DRY_SPECIFIC_HEAT*pow(pressure/basePressure, RD/DRY_SPECIFIC_HEAT)))*-dqv;
-
     //calc temp w/ temp' + eq
-    float resultTemp = lastqvAndTemp.y + inter;
-
+    float resultTemp = lastqvAndTemp.y + (LATENT_HEAT/(DRY_SPECIFIC_HEAT*pow(pressure/basePressure, RD/DRY_SPECIFIC_HEAT)))*-dqv;
+    resultTemp = (isnan(resultTemp)) ? lastqvAndTemp.y : resultTemp;
     imageStore(outqvAndTemp, ivec3(gl_GlobalInvocationID.xyz), vec4(qv, resultTemp,0,0));
-    imageStore(outqc, ivec3(gl_GlobalInvocationID.xyz), vec4(qc));
+    imageStore(outqc, ivec3(gl_GlobalInvocationID.xyz), vec4(qc,0,0,0));
+
+    //imageStore(outqvAndTemp, ivec3(gl_GlobalInvocationID.xyz), lastqvAndTemp);
+    //imageStore(outqc, ivec3(gl_GlobalInvocationID.xyz), lastqc);
+
+
 
 }

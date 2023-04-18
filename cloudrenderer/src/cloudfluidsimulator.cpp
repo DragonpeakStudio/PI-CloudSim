@@ -1,10 +1,10 @@
 #include "cloudfluidsimulator.h"
 
 CloudFluidSimulator::CloudFluidSimulator(std::pair<glm::vec3, glm::vec3> bbox, float voxelScale) : CloudSimulator(bbox, voxelScale), 
-m_velocity(nullptr, eng::rndr::TextureInfo{GL_REPEAT, GL_REPEAT, GL_LINEAR, GL_LINEAR, GL_RGBA, 4, GL_RGBA16F, GL_FLOAT}, (bbox.second.x-bbox.first.x)/voxelScale, (bbox.second.x-bbox.first.x)/voxelScale, (bbox.second.x-bbox.first.x)/voxelScale),//This has to be 4 components because  computes shaders cannot write to 3 component iamges for some reason
-m_qvAndTemp(nullptr, eng::rndr::TextureInfo{GL_REPEAT, GL_REPEAT, GL_LINEAR, GL_LINEAR, GL_RG, 2, GL_RG16F, GL_FLOAT}, (bbox.second.x-bbox.first.x)/voxelScale, (bbox.second.x-bbox.first.x)/voxelScale, (bbox.second.x-bbox.first.x)/voxelScale),
-m_qc(nullptr, eng::rndr::TextureInfo{GL_REPEAT, GL_REPEAT, GL_LINEAR, GL_LINEAR, GL_RG, 2, GL_RG16F, GL_FLOAT}, (bbox.second.x-bbox.first.x)/voxelScale, (bbox.second.x-bbox.first.x)/voxelScale, (bbox.second.x-bbox.first.x)/voxelScale),
-m_pressureAndDivergence(nullptr, eng::rndr::TextureInfo{GL_REPEAT, GL_REPEAT, GL_LINEAR, GL_LINEAR, GL_RG, 2, GL_RG16F, GL_FLOAT}, (bbox.second.x-bbox.first.x)/voxelScale, (bbox.second.x-bbox.first.x)/voxelScale, (bbox.second.x-bbox.first.x)/voxelScale),
+m_velocity(nullptr, eng::rndr::TextureInfo{GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_LINEAR, GL_LINEAR, GL_RGBA, 4, GL_RGBA16F, GL_FLOAT}, (bbox.second.x-bbox.first.x)/voxelScale, (bbox.second.y-bbox.first.y)/voxelScale, (bbox.second.z-bbox.first.z)/voxelScale),//This has to be 4 components because  computes shaders cannot write to 3 component iamges for some reason
+m_qvAndTemp(nullptr, eng::rndr::TextureInfo{GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_LINEAR, GL_LINEAR, GL_RG, 2, GL_RG16F, GL_FLOAT}, (bbox.second.x-bbox.first.x)/voxelScale, (bbox.second.y-bbox.first.y)/voxelScale, (bbox.second.z-bbox.first.z)/voxelScale),
+m_qc(nullptr, eng::rndr::TextureInfo{GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_LINEAR, GL_LINEAR, GL_RG, 2, GL_RG16F, GL_FLOAT}, (bbox.second.x-bbox.first.x)/voxelScale, (bbox.second.y-bbox.first.y)/voxelScale, (bbox.second.z-bbox.first.z)/voxelScale),
+m_pressureAndDivergence(nullptr, eng::rndr::TextureInfo{GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_LINEAR, GL_LINEAR, GL_RG, 2, GL_RG16F, GL_FLOAT}, (bbox.second.x-bbox.first.x)/voxelScale, (bbox.second.y-bbox.first.y)/voxelScale, (bbox.second.z-bbox.first.z)/voxelScale),
 m_advect("../resources/shaders/advect.comp"),
 m_applyForces("../resources/shaders/applyforces.comp"),
 m_updateWaterAndTemp("../resources/shaders/updatewaterandtemp.comp"),
@@ -12,6 +12,8 @@ m_calcDivergence("../resources/shaders/calcdivergence.comp"),
 m_pressureItr("../resources/shaders/pressureitr.comp"),
 m_applyPressureGrad("../resources/shaders/applypressuregrad.comp"),
 m_initProcess("../resources/shaders/initfields.comp"),
+m_setBoundary("../resources/shaders/setboundary.comp"),
+
 m_velSlicer(m_velocity.getActive()),
 m_qvAndTempSlicer(m_qvAndTemp.getActive()),
 m_qcSlicer(m_qc.getActive()),
@@ -25,22 +27,63 @@ m_pressureAndDivergenceSlicer(m_pressureAndDivergence.getActive())
     m_pressureItr.load();
     m_applyPressureGrad.load();
     m_initProcess.load();
+    m_setBoundary.load();
 }
-
 CloudFluidSimulator::~CloudFluidSimulator()
 {
+
 }
 
 void CloudFluidSimulator::update(double delta)
 {
     //{//advect.comp, just use basic advection for now, maybe add MacCormack advection in future
         //Advect quantities
+    if(m_stepByStep && !m_update)
+    {
+        return;
+    }
+    m_time+=delta;
     advectField(m_qvAndTemp, m_velocity.getNonActive(), delta);
     advectField(m_qc, m_velocity.getNonActive(), delta);
     advectField(m_velocity, m_velocity.getNonActive(), delta);
-
+    glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT | GL_TEXTURE_FETCH_BARRIER_BIT);
+    //setboundary
+    m_setBoundary.bind();
+    m_setBoundary.setUniform("outVelocity", 0);
+    m_setBoundary.setUniform("outqc", 1);
+    m_setBoundary.setUniform("outqvAndTemp", 2);
+    m_setBoundary.setUniform("inVelocity", 3);
+    m_setBoundary.setUniform("inqvAndTemp", 4);
+    m_velocity.getNonActive().bind(GL_TEXTURE3);
+    m_qvAndTemp.getNonActive().bind(GL_TEXTURE4);
+    glBindImageTexture(0, m_velocity.getNonActive().id(), 0, false, 0, GL_WRITE_ONLY, m_velocity.getNonActive().info().internalFormat);//not swapping textures bcause not writing to all
+    glBindImageTexture(1, m_qc.getNonActive().id(), 0, false, 0, GL_WRITE_ONLY, m_qc.getNonActive().info().internalFormat);
+    glBindImageTexture(2, m_qvAndTemp.getNonActive().id(), 0, false, 0, GL_WRITE_ONLY, m_qvAndTemp.getNonActive().info().internalFormat);
+    m_setBoundary.bind();
+    m_setBoundary.setUniform("time", m_time);
+    m_setBoundary.setUniform("side", 1);
+    m_setBoundary.setUniform("size", m_velocity.getActive().height());
+    m_setBoundary.dispatch(glm::uvec3(m_velocity.getA().width()/8, m_velocity.getA().depth()/8, 1));
+    m_setBoundary.bind();
+    m_setBoundary.setUniform("side", 3);
+    m_setBoundary.dispatch(glm::uvec3(m_velocity.getA().width()/8, m_velocity.getA().depth()/8, 1));
+    m_setBoundary.bind();
+    m_setBoundary.setUniform("side", 2);
+    m_setBoundary.setUniform("size", m_velocity.getActive().width());
+    m_setBoundary.dispatch(glm::uvec3(m_velocity.getA().height()/8, m_velocity.getA().depth()/8, 1));
+    m_setBoundary.bind();
+    m_setBoundary.setUniform("side", 4);
+    m_setBoundary.dispatch(glm::uvec3(m_velocity.getA().height()/8, m_velocity.getA().depth()/8, 1));
+    m_setBoundary.bind();
+    m_setBoundary.setUniform("side", 0);
+    m_setBoundary.setUniform("size", m_velocity.getActive().depth());
+    m_setBoundary.dispatch(glm::uvec3(m_velocity.getA().width()/8, m_velocity.getA().height()/8, 1));
+    m_setBoundary.bind();
+    m_setBoundary.setUniform("side", 5);
+    m_setBoundary.dispatch(glm::uvec3(m_velocity.getA().width()/8, m_velocity.getA().height()/8, 1));
     glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT | GL_TEXTURE_FETCH_BARRIER_BIT);
     //}
+
     //{//applyforces.comp
         //compute buoyant force
         //compute vorticity confinement
@@ -48,25 +91,28 @@ void CloudFluidSimulator::update(double delta)
         //apply free slip
     m_applyForces.bind();
     m_velocity.getNonActive().bind(GL_TEXTURE1);
+    m_qc.getNonActive().bind(GL_TEXTURE2);
+    m_qvAndTemp.getNonActive().bind(GL_TEXTURE3);
     m_applyForces.setUniform("delta", (float)delta);
+    m_applyForces.setUniform("inVelField", 1);
+    m_applyForces.setUniform("inqc", 2);
+    m_applyForces.setUniform("inqvAndTemp", 3);
     m_applyForces.setUniform("inVelField", 1);
     m_applyForces.setUniform("outVelField", 0);
     glBindImageTexture(0, m_velocity.getActive().id(), 0, false, 0, GL_WRITE_ONLY, m_velocity.getActive().info().internalFormat);
-
     m_applyForces.dispatch(glm::uvec3(m_velocity.getActive().width()/8, m_velocity.getActive().height()/8, m_velocity.getActive().depth()/8));
-
     m_velocity.swap();
-
-    glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT | GL_TEXTURE_FETCH_BARRIER_BIT);
     //}
+    glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT | GL_TEXTURE_FETCH_BARRIER_BIT);
     //{//updatetempandwater.comp
         //update qc,qv
         //update temp
+        
     m_updateWaterAndTemp.bind();
     m_updateWaterAndTemp.setUniform("delta", (float)delta);
     m_updateWaterAndTemp.setUniform("outqvAndTemp", 0);
     m_updateWaterAndTemp.setUniform("outqc", 1);
-    m_updateWaterAndTemp.setUniform("inqvAndTemp", 2);
+    m_updateWaterAndTemp.setUniform("inqvAndTemp", 2);  
     m_updateWaterAndTemp.setUniform("inqc", 3);
     m_qvAndTemp.getNonActive().bind(GL_TEXTURE2);
     m_qc.getNonActive().bind(GL_TEXTURE3);
@@ -75,8 +121,8 @@ void CloudFluidSimulator::update(double delta)
     m_updateWaterAndTemp.dispatch(glm::uvec3(m_qc.getActive().width()/8, m_qc.getActive().height()/8, m_qc.getActive().depth()/8));
     m_qc.swap();
     m_qvAndTemp.swap();
-
     //}
+
     //{//calcdivergence.comp
         //compute divergence
     m_calcDivergence.bind();
@@ -88,7 +134,6 @@ void CloudFluidSimulator::update(double delta)
     m_pressureAndDivergence.swap();
     //}
     glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT | GL_TEXTURE_FETCH_BARRIER_BIT); 
-    
     //{//pressureitr.comp basic jacobbi for now
         //compute pressure, accounting for boundaries
     for(unsigned int i = 0; i < m_pressureItrs; i++)
@@ -116,13 +161,11 @@ void CloudFluidSimulator::update(double delta)
     m_velocity.swap();
     //}
     glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT | GL_TEXTURE_FETCH_BARRIER_BIT);
-
 }
 void CloudFluidSimulator::setCollisionField(std::unique_ptr<eng::rndr::Texture3d> collisionField)
 {
     m_collisionField = std::move(collisionField);
 }
-
 void CloudFluidSimulator::advectField(Swappable3DTexture &field, eng::rndr::Texture3d &velField, float delta)
 {
     m_advect.bind();
@@ -154,7 +197,6 @@ void CloudFluidSimulator::initFields()
     glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT | GL_TEXTURE_FETCH_BARRIER_BIT);
 
 }
-
 eng::rndr::Texture3d &CloudFluidSimulator::getField(std::string_view identifier)
 {
     if(identifier=="density")
@@ -180,7 +222,7 @@ void CloudFluidSimulator::drawUI()
 {
 
     ImGui::Begin("Fluid Sim");
-    ImGui::SliderInt("Slice", &m_debugSlice, 0, m_qc.getActive().depth());
+    ImGui::SliderInt("Slice", &m_debugSlice, 0, m_qc.getActive().depth()-1);
     m_velSlicer.update(m_debugSlice);
     ImGui::LabelText("Velocity:", "");
     ImGui::Image((void*)(intptr_t)m_velSlicer.getSlice()->id(), {(float)128.f, (float)128.f});
@@ -196,6 +238,8 @@ void CloudFluidSimulator::drawUI()
     ImGui::LabelText("pressure and divergence:", "");
 
     ImGui::Image((void*)(intptr_t)m_pressureAndDivergenceSlicer.getSlice()->id(), {(float)128.f, (float)128.f});
+    ImGui::Checkbox("Step By Step", &m_stepByStep);
+    m_update = ImGui::Button("Step");
     ImGui::End();
 
 }

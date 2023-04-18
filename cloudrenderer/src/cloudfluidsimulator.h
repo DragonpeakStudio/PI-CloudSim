@@ -18,9 +18,9 @@ class CloudFluidSimulator : public CloudSimulator
         virtual eng::rndr::Texture3d &getField(std::string_view identifier) override;
         virtual void drawUI() override;
         virtual void init() override;
-
-        void setCollisionField(std::unique_ptr<eng::rndr::Texture3d> collisionField);
     
+        void setCollisionField(std::unique_ptr<eng::rndr::Texture3d> collisionField);
+
     private:
         Swappable3DTexture m_velocity;
         Swappable3DTexture m_qvAndTemp;//sperate these so qc can be used as density field in rendering easily
@@ -34,18 +34,21 @@ class CloudFluidSimulator : public CloudSimulator
         eng::rndr::ComputeShaderProgram m_pressureItr;
         eng::rndr::ComputeShaderProgram m_applyPressureGrad;
         eng::rndr::ComputeShaderProgram m_initProcess;
+        eng::rndr::ComputeShaderProgram m_setBoundary;
 
         Texture3dSlicer m_velSlicer;
         Texture3dSlicer m_qvAndTempSlicer;
         Texture3dSlicer m_qcSlicer;
         Texture3dSlicer m_pressureAndDivergenceSlicer;
 
-
         int m_debugSlice = 0;
         unsigned int m_pressureItrs = 20;
 
         void advectField(Swappable3DTexture &field, eng::rndr::Texture3d &velField, float delta);
         void initFields();
+        bool m_stepByStep = false;
+        bool m_update = false;
+        float m_time = 0;
 
 };
 

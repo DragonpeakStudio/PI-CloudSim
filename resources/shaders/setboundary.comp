@@ -1,0 +1,92 @@
+#version 460 core
+layout(local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
+
+layout (binding = 0) writeonly restrict uniform image3D outVelocity;
+layout (binding = 1) writeonly restrict uniform image3D outqc;
+layout (binding = 2) writeonly restrict uniform image3D outqvAndTemp;
+
+uniform sampler3D inVelocity; 
+uniform sampler3D inqvAndTemp; 
+
+#include "lib/rand.slib"
+#include "lib/noise.slib"
+
+uniform int side = 0;
+uniform vec2 windValue = vec2(20.5, 20.5);
+uniform float baseTemperature = 300.;
+uniform float bottomTemp = 310.;
+uniform float bottomQv = .5;
+uniform int size = 0;
+uniform float noiseScale = 20.;
+uniform float time = 0.;
+void main()
+{
+    ivec3 ipos = ivec3(gl_WorkGroupSize.xy*gl_NumWorkGroups.xy, size-1);
+    vec2 res = vec2(gl_WorkGroupSize*gl_NumWorkGroups);
+    vec2 pos = (vec2(gl_GlobalInvocationID.xy)+.5)/res;
+    //execute in xy, side specifies what side of texture we are in
+    //0 bottom, 1 +x, 2 +y, 3 -x, 4 -y, 5 top
+
+    //sides
+    //vertical velocity zero
+    //user defined windValue
+    //user defined temperature
+    //qc zero
+    //qv periodic boundaries, what does this mean? I think it just loop to the other side
+
+    //top free slip
+    //user defined temp
+    //qc zero
+    //qv zero
+
+    //bottom
+    //no slip
+    //qv and temp user defined with randomness
+
+    if(side == 0)//bottom
+    {
+        imageStore(outVelocity, ivec3(gl_GlobalInvocationID.xy, size-1), vec4(0));
+        imageStore(outqc, ivec3(gl_GlobalInvocationID.xy, size-1), vec4(0));
+        
+
+        float qv = bottomQv*clamp(noise3D(vec3(pos*noiseScale, time*4.))*4.-3., 0., 1.);
+        float temp = bottomTemp*clamp(noise3D(vec3(pos*noiseScale, 123123+time*4.))*4.-3., 0., 1.);
+        imageStore(outqvAndTemp, ivec3(gl_GlobalInvocationID.xy, size-1), vec4(qv, temp,0,0));//TODO randomness
+    }
+    else if(side == 5)//top
+    {
+        imageStore(outqc, ivec3(gl_GlobalInvocationID.xy, 0), vec4(0));
+        imageStore(outqvAndTemp, ivec3(gl_GlobalInvocationID.xy, 0), vec4(0, baseTemperature, 0,0));
+        imageStore(outVelocity, ivec3(gl_GlobalInvocationID.xy, 0), vec4(texture(inVelocity, vec3(pos, 0)).xy, 0, 0));
+    }
+    else if(side <= 4 && size >= 1)//side
+    {
+        ivec3 pos3 = ivec3(0);
+        vec3 altPos3 = vec3(0);
+        if(side == 1)
+        {
+            pos3 = ivec3(ipos.x, 0, ipos.y);
+            altPos3 = vec3(ipos.x, ipos.z, ipos.y)/vec3(res.x, size, res.y);
+        }
+        else if(side == 2)
+        {
+            pos3 = ivec3(ipos.x, ipos.z, ipos.y);
+            altPos3 = vec3(ipos.x, 0, ipos.y)/vec3(res.x, 1., res.y);
+        }
+        else if(side == 3)
+        {
+            pos3 = ivec3(0, ipos.xy);
+            altPos3 = vec3(ipos.z, ipos.xy)/vec3(size, res);
+        }
+        else if(side == 4)
+        {
+            pos3 = ivec3(ipos.z, ipos.xy);
+            altPos3 = vec3(0, ipos.xy)/vec3(size, res);
+        }   
+        imageStore(outqc, pos3, vec4(0));
+        imageStore(outVelocity, pos3, vec4(windValue, 0, 0));
+        float qv = texture(inqvAndTemp, vec3(altPos3)).x;
+        imageStore(outqvAndTemp, pos3, vec4(qv, baseTemperature,0,0));
+
+    }
+}
