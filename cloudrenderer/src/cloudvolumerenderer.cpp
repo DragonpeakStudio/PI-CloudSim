@@ -85,6 +85,6 @@ void CloudVolumeRenderer::drawUI()
     ImGui::SliderFloat("Step Size", &m_stepSize, .5, 100.);
     ImGui::SliderFloat("Light Step Size", &m_lightStepSize, .2, 20.);
     ImGui::SliderFloat("Light Far", &m_lightFar, 0., 50.);
-    ImGui::SliderFloat("Light Dens Mult", &m_lightDensMult, 0., 5.);
+    ImGui::SliderFloat("Light Dens Mult", &m_lightDensMult, 0., 15.);
     ImGui::End();
 }

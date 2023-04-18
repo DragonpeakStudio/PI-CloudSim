@@ -16,7 +16,7 @@ void main()
 
     imageStore(outqc, ivec3(gl_GlobalInvocationID).xyz, vec4(0.00, 0, 0., 0.));
     imageStore(outVelocity, ivec3(gl_GlobalInvocationID).xyz, vec4(0.000001,0.000001, 0, 0));
-    imageStore(outqvAndTemp, ivec3(gl_GlobalInvocationID).xyz, vec4(0.00001, baseTemperature, 0, 0));
+    imageStore(outqvAndTemp, ivec3(gl_GlobalInvocationID).xyz, vec4(0.00001, 0.00001, 0, 0));
 
 
 }

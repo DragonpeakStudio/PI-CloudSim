@@ -12,10 +12,10 @@ uniform sampler3D inqvAndTemp;
 #include "lib/noise.slib"
 
 uniform int side = 0;
-uniform vec2 windValue = vec2(.5, .5);
+uniform vec2 windValue = vec2(.01, .01);
 uniform float baseTemperature = 300.;
-uniform float bottomTemp = 310.;
-uniform float bottomQv = .5;
+uniform float bottomTemp = 300.;
+uniform float bottomQv = .06;
 uniform int size = 0;
 uniform float noiseScale = 20.;
 uniform float time = 0.;
@@ -47,8 +47,8 @@ void main()
         imageStore(outqc, ivec3(ipos), vec4(0));
         
 
-        float qv = bottomQv*clamp(noise3D(vec3(pos.xy*noiseScale, time*4.))*4.-3., 0., 1.);
-        float temp = bottomTemp*clamp(noise3D(vec3(pos.xy*noiseScale, 123123+time*4.))*4.-3., 0., 1.);
+        float qv = bottomQv*clamp(noise3D(vec3(pos.xy*noiseScale, time)), 0., 1.);
+        float temp = bottomTemp*clamp(noise3D(vec3(pos.xy*noiseScale, 123123+time)), 0., 1.);
         imageStore(outqvAndTemp, ivec3(ipos), vec4(qv, temp,0,0));//TODO randomness
     }
     else if(ipos.z == 0)//top

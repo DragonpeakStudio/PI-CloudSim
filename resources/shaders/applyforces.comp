@@ -19,7 +19,7 @@ float calcBuoyancy(float qc, float qv, float temp)
     qc = max(qc,0.0001);
 
     float tv = temp*(1+0.61*qv);
-    return GRAVITY*((tv/baseTemperature)+(qc));
+    return GRAVITY*((tv/baseTemperature)+(qv));
 }
 
 void main()
@@ -31,7 +31,7 @@ void main()
     vec4 qvAndTemp = texture(inqvAndTemp, pos);
 
     vec3 newForces = vec3(0);
-    newForces += vec3(0,0,-1)*calcBuoyancy(qc.x, qvAndTemp.x, qvAndTemp.y);
+    newForces += vec3(0,0,-1)*calcBuoyancy(qc.x, qvAndTemp.x, qvAndTemp.y)/res.z;
 
     imageStore(outVelField, ivec3(gl_GlobalInvocationID.xyz), texture(inVelField, pos)+vec4(newForces,0)*delta);
 

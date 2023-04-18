@@ -10,7 +10,7 @@ uniform sampler3D inqc;
 
 uniform float basePressure = 99.;
 uniform float baseTemperature = 300.;
-uniform float altitudeOffset = 100000.;
+uniform float altitudeOffset = 100000000.;
 const float RD = 287.;
 const float LAPSE_RATE = 10.;
 const float GRAVITY = 9.81;
