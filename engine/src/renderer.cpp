@@ -29,13 +29,14 @@ Renderer::Renderer(RendererConfig config, Engine *eng) : m_window(config.width, 
 	SDL_GL_SetSwapInterval(1);
 	glEnable(GL_CULL_FACE);  
 	glEnable( GL_DEBUG_OUTPUT );
-	glDebugMessageCallback( glMessageCallback, 0 );
+	//glDebugMessageCallback( glMessageCallback, 0 );
+	
 	glViewport(0, 0, m_window.width(), m_window.height());
 
 	m_engine->inputManager().addKeybindCallback(SDL_SCANCODE_I, [&isUiShown = m_isUiShown](){
 		isUiShown = !isUiShown;
 		SDL_SetRelativeMouseMode((SDL_bool)!isUiShown);
-		
+	
 	});
 
 	IMGUI_CHECKVERSION();

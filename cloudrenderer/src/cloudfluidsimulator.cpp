@@ -61,26 +61,7 @@ void CloudFluidSimulator::update(double delta)
     glBindImageTexture(2, m_qvAndTemp.getNonActive().id(), 0, false, 0, GL_WRITE_ONLY, m_qvAndTemp.getNonActive().info().internalFormat);
     m_setBoundary.bind();
     m_setBoundary.setUniform("time", m_time);
-    m_setBoundary.setUniform("side", 1);
-    m_setBoundary.setUniform("size", m_velocity.getActive().height());
-    m_setBoundary.dispatch(glm::uvec3(m_velocity.getA().width()/8, m_velocity.getA().depth()/8, 1));
-    m_setBoundary.bind();
-    m_setBoundary.setUniform("side", 3);
-    m_setBoundary.dispatch(glm::uvec3(m_velocity.getA().width()/8, m_velocity.getA().depth()/8, 1));
-    m_setBoundary.bind();
-    m_setBoundary.setUniform("side", 2);
-    m_setBoundary.setUniform("size", m_velocity.getActive().width());
-    m_setBoundary.dispatch(glm::uvec3(m_velocity.getA().height()/8, m_velocity.getA().depth()/8, 1));
-    m_setBoundary.bind();
-    m_setBoundary.setUniform("side", 4);
-    m_setBoundary.dispatch(glm::uvec3(m_velocity.getA().height()/8, m_velocity.getA().depth()/8, 1));
-    m_setBoundary.bind();
-    m_setBoundary.setUniform("side", 0);
-    m_setBoundary.setUniform("size", m_velocity.getActive().depth());
-    m_setBoundary.dispatch(glm::uvec3(m_velocity.getA().width()/8, m_velocity.getA().height()/8, 1));
-    m_setBoundary.bind();
-    m_setBoundary.setUniform("side", 5);
-    m_setBoundary.dispatch(glm::uvec3(m_velocity.getA().width()/8, m_velocity.getA().height()/8, 1));
+    m_setBoundary.dispatch(glm::uvec3(m_velocity.getActive().width()/8, m_velocity.getActive().height()/8, m_velocity.getActive().depth()/8));
     glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT | GL_TEXTURE_FETCH_BARRIER_BIT);
     //}
 
@@ -107,7 +88,7 @@ void CloudFluidSimulator::update(double delta)
     //{//updatetempandwater.comp
         //update qc,qv
         //update temp
-        
+
     m_updateWaterAndTemp.bind();
     m_updateWaterAndTemp.setUniform("delta", (float)delta);
     m_updateWaterAndTemp.setUniform("outqvAndTemp", 0);

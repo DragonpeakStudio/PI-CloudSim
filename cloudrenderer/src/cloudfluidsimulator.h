@@ -43,13 +43,12 @@ class CloudFluidSimulator : public CloudSimulator
 
         int m_debugSlice = 0;
         unsigned int m_pressureItrs = 20;
-
         void advectField(Swappable3DTexture &field, eng::rndr::Texture3d &velField, float delta);
         void initFields();
-        bool m_stepByStep = false;
+        bool m_stepByStep = true;
         bool m_update = false;
         float m_time = 0;
-
+    
 };
 
 #endif
