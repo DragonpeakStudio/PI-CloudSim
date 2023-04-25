@@ -74,13 +74,15 @@ void CloudVolumeRenderer::draw(eng::rndr::Texture3d &densityField, eng::rndr::Re
     glEnable(GL_DEPTH_TEST);  
 
 }
+
+
 void CloudVolumeRenderer::drawUI()
 {
     ImGui::Begin("Cloud Rendering");
 
     ImGui::SliderFloat("Sun Mult", &m_sunBrightness, 0., 3.);
     ImGui::SliderFloat("Ambient Mult", &m_ambientBrightness, 0., 3.);
-    ImGui::SliderFloat("Dens Mult", &m_densMult, 0., 50.);
+    ImGui::SliderFloat("Dens Mult", &m_densMult, 0., 10.);
 
     ImGui::SliderFloat("Step Size", &m_stepSize, .5, 100.);
     ImGui::SliderFloat("Light Step Size", &m_lightStepSize, .2, 20.);

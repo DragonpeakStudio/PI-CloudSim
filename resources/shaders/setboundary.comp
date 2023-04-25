@@ -7,15 +7,17 @@ layout (binding = 2) writeonly restrict uniform image3D outqvAndTemp;
 
 uniform sampler3D inVelocity; 
 uniform sampler3D inqvAndTemp; 
+uniform sampler3D inqc; 
+
 
 #include "lib/rand.slib"
 #include "lib/noise.slib"
 
 uniform int side = 0;
-uniform vec2 windValue = vec2(.01, .01);
+uniform vec2 windValue = vec2(.1, .1);
 uniform float baseTemperature = 300.;
-uniform float bottomTemp = 300.;
-uniform float bottomQv = .06;
+uniform float bottomTemp = 10;
+uniform float bottomQv = .1;
 uniform int size = 0;
 uniform float noiseScale = 20.;
 uniform float time = 0.;
@@ -48,7 +50,7 @@ void main()
         
 
         float qv = bottomQv*clamp(noise3D(vec3(pos.xy*noiseScale, time)), 0., 1.);
-        float temp = bottomTemp*clamp(noise3D(vec3(pos.xy*noiseScale, 123123+time)), 0., 1.);
+        float temp = baseTemperature+bottomTemp*clamp(noise3D(vec3(pos.xy*noiseScale, 123123+time)), 0., 1.);
         imageStore(outqvAndTemp, ivec3(ipos), vec4(qv, temp,0,0));//TODO randomness
     }
     else if(ipos.z == 0)//top
@@ -62,21 +64,22 @@ void main()
         vec3 altPos3 = vec3(0);
         if(ipos.x == 0)
         {
-            altPos3 = vec3(res.x-1, pos.y, ipos.z)/vec3(res);
+            altPos3 = vec3(res.x-2, pos.y, ipos.z)/vec3(res);
         }
         else if(ipos.x == res.x-1)
         {
-            altPos3 = vec3(0, pos.y, ipos.z)/vec3(res);
+            altPos3 = vec3(1, pos.y, ipos.z)/vec3(res);
         }
         if(ipos.y == 0)
         {
-            altPos3 = vec3(pos.x, res.y-1, ipos.z)/vec3(res);
+            altPos3 = vec3(pos.x, res.y-2, ipos.z)/vec3(res);
         }
         else if(ipos.y == res.x-1)
         {
-            altPos3 = vec3(pos.x, 0, ipos.z)/vec3(res);
+            altPos3 = vec3(pos.x, 1, ipos.z)/vec3(res);
         }//why won'y you just work!
-        imageStore(outqc, ipos, vec4(0));
+        float qc = texture(inqc, vec3(altPos3)).x;
+        imageStore(outqc, ipos, vec4(qc));
         imageStore(outVelocity, ipos, vec4(windValue, 0, 0));
         float qv = texture(inqvAndTemp, vec3(altPos3)).x;
         imageStore(outqvAndTemp, ipos, vec4(qv, baseTemperature,0,0));

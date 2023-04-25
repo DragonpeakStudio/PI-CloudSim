@@ -3,30 +3,37 @@ layout(local_size_x = 8, local_size_y = 8, local_size_z = 8) in;
 
 layout (binding = 0) writeonly restrict uniform image3D outqvAndTemp;
 layout (binding = 1) writeonly restrict uniform image3D outqc;
+layout (binding = 4) writeonly restrict uniform image3D outdebug;
+
 
 
 uniform sampler3D inqvAndTemp;
 uniform sampler3D inqc;
 
-uniform float basePressure = 99.;
+uniform float basePressure = 100.;
 uniform float baseTemperature = 300.;
-uniform float altitudeOffset = 100000000.;
+uniform float altitudeOffset = 100.;
+uniform float altitudeScale = 1000.;
 const float RD = 287.;
-const float LAPSE_RATE = 10.;
+const float LAPSE_RATE = 1.;
 const float GRAVITY = 9.81;
 const float DRY_SPECIFIC_HEAT = 1.0035;
 const float LATENT_HEAT = 2.501;
 float calcPressure(float z)
 {
-    return basePressure*pow(1.-(z*LAPSE_RATE)/baseTemperature, GRAVITY/(LAPSE_RATE*RD));
+    float n = 1.-(-z*LAPSE_RATE)/baseTemperature;
+    return basePressure*pow(abs(n), GRAVITY/(LAPSE_RATE*RD));
 }
 float calcTemp(float potentialTemp, float pressure)
 {
-    float k = RD/DRY_SPECIFIC_HEAT;
+    float k = RD/DRY_SPECIFIC_HEAT/1000.;
     return potentialTemp/pow(basePressure/pressure, k);
 }
 float calcQVS(float temp, float pressure)
 {
+    temp = max(temp, 0.01);
+    temp-=273.15;//to Celsius
+    //pressure*=1000;//kPa to pa
     return (380.16/pressure)*exp((17.67*temp)/(temp+243.5));
 }
 void main()
@@ -41,13 +48,13 @@ void main()
     //update water
 
     //calc presure
-    float pressure = calcPressure(gl_GlobalInvocationID.z+altitudeOffset);//TODO account for bbox and units
+    float pressure = calcPressure((1.-pos.z)*altitudeScale+altitudeOffset);//TODO account for bbox and units
     //calc temp using current potential temp
     float temp = calcTemp(lastqvAndTemp.y, pressure);
     //calc qvs w/ temp and pressure
     float qvs = calcQVS(temp, pressure);
     //calc dqv w/ qvs
-    float dqv = min(qvs, min(-lastqvAndTemp.x, lastqc.x));
+    float dqv = min(qvs-lastqvAndTemp.x, lastqc.x);
 
 
     //calc qc w/ dqv
@@ -55,7 +62,7 @@ void main()
     //calc qv w/ dqv
     float qc = lastqc.x - dqv;
 
-    //update temp
+    //update temp   
 
     //dC = -dqv
 
@@ -67,8 +74,8 @@ void main()
     imageStore(outqc, ivec3(gl_GlobalInvocationID.xyz), vec4(qc,0,0,0));
 
     //imageStore(outqvAndTemp, ivec3(gl_GlobalInvocationID.xyz), lastqvAndTemp);
-    //imageStore(outqc, ivec3(gl_GlobalInvocationID.xyz), lastqc);
-
+    //imageStore(outqc, ivec3(gl_GlobalInvocationID.xyz), vec4(temp));
+    imageStore(outdebug, ivec3(gl_GlobalInvocationID.xyz), vec4(qvs, dqv,temp,pressure));
 
 
 }

@@ -27,6 +27,8 @@ class CloudFluidSimulator : public CloudSimulator
         Swappable3DTexture m_qc;
         Swappable3DTexture m_pressureAndDivergence;
         std::unique_ptr<eng::rndr::Texture3d> m_collisionField;
+        eng::rndr::Texture3d m_debugOut;
+
         eng::rndr::ComputeShaderProgram m_advect;
         eng::rndr::ComputeShaderProgram m_applyForces;
         eng::rndr::ComputeShaderProgram m_updateWaterAndTemp;
@@ -40,6 +42,9 @@ class CloudFluidSimulator : public CloudSimulator
         Texture3dSlicer m_qvAndTempSlicer;
         Texture3dSlicer m_qcSlicer;
         Texture3dSlicer m_pressureAndDivergenceSlicer;
+        Texture3dSlicer m_debugOutSlicer;
+        std::unique_ptr<Texture3dSlicer> m_collisionFieldSlicer;
+
 
         int m_debugSlice = 0;
         unsigned int m_pressureItrs = 20;
