@@ -24,12 +24,12 @@ class CloudVolumeRenderer : public CloudRenderer
         float m_stepSize = 1;
         float m_lightFar = 25.;
         float m_lightDensMult = .4; 
-        float m_densMult = 10.;
+        float m_densMult = 2.;
         float m_lightStepSize = 8.;
         float m_time = 1.;
         std::unique_ptr<eng::rndr::FrameBuffer> m_frameBuffer;
-        float m_cloudResMult = 0.8;
-        float m_lastFrameBlend = .5;
+        float m_cloudResMult = 0.6;
+        float m_lastFrameBlend = .1;
         glm::ivec4 m_origViewport;
         glm::ivec4 m_scaledViewport;
         std::unique_ptr<eng::rndr::Texture2d> m_lastFrame;

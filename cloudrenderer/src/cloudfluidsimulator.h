@@ -26,6 +26,7 @@ class CloudFluidSimulator : public CloudSimulator
         Swappable3DTexture m_qvAndTemp;//sperate these so qc can be used as density field in rendering easily
         Swappable3DTexture m_qc;
         Swappable3DTexture m_pressureAndDivergence;
+        eng::rndr::Texture3d m_curl;
         std::unique_ptr<eng::rndr::Texture3d> m_collisionField;
         eng::rndr::Texture3d m_debugOut;
 
@@ -37,6 +38,8 @@ class CloudFluidSimulator : public CloudSimulator
         eng::rndr::ComputeShaderProgram m_applyPressureGrad;
         eng::rndr::ComputeShaderProgram m_initProcess;
         eng::rndr::ComputeShaderProgram m_setBoundary;
+        eng::rndr::ComputeShaderProgram m_calcCurl;
+
 
         Texture3dSlicer m_velSlicer;
         Texture3dSlicer m_qvAndTempSlicer;
@@ -58,6 +61,7 @@ class CloudFluidSimulator : public CloudSimulator
         float m_bottomTempOffset = 100.;
         float m_windAngle = 0;
         float m_windStr = 0.01;
+        float m_vortStr = 1024.*8.;
 
     
 };

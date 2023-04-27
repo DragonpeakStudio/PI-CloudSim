@@ -5,6 +5,7 @@ m_velocity(nullptr, eng::rndr::TextureInfo{GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, G
 m_qvAndTemp(nullptr, eng::rndr::TextureInfo{GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_LINEAR, GL_LINEAR, GL_RG, 2, GL_RG16F, GL_FLOAT}, (bbox.second.x-bbox.first.x)/voxelScale, (bbox.second.y-bbox.first.y)/voxelScale, (bbox.second.z-bbox.first.z)/voxelScale),
 m_qc(nullptr, eng::rndr::TextureInfo{GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_LINEAR, GL_LINEAR, GL_RG, 2, GL_RG16F, GL_FLOAT}, (bbox.second.x-bbox.first.x)/voxelScale, (bbox.second.y-bbox.first.y)/voxelScale, (bbox.second.z-bbox.first.z)/voxelScale),
 m_pressureAndDivergence(nullptr, eng::rndr::TextureInfo{GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_LINEAR, GL_LINEAR, GL_RG, 2, GL_RG16F, GL_FLOAT}, (bbox.second.x-bbox.first.x)/voxelScale, (bbox.second.y-bbox.first.y)/voxelScale, (bbox.second.z-bbox.first.z)/voxelScale),
+m_curl(nullptr, eng::rndr::TextureInfo{GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_LINEAR, GL_LINEAR, GL_RGBA, 4, GL_RGBA16F, GL_FLOAT}, (bbox.second.x-bbox.first.x)/voxelScale, (bbox.second.y-bbox.first.y)/voxelScale, (bbox.second.z-bbox.first.z)/voxelScale),
 m_debugOut(nullptr, eng::rndr::TextureInfo{GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_LINEAR, GL_LINEAR, GL_RGBA, 4, GL_RGBA16F, GL_FLOAT}, (bbox.second.x-bbox.first.x)/voxelScale, (bbox.second.y-bbox.first.y)/voxelScale, (bbox.second.z-bbox.first.z)/voxelScale),
 m_advect("../resources/shaders/advect.comp"),
 m_applyForces("../resources/shaders/applyforces.comp"),
@@ -14,6 +15,7 @@ m_pressureItr("../resources/shaders/pressureitr.comp"),
 m_applyPressureGrad("../resources/shaders/applypressuregrad.comp"),
 m_initProcess("../resources/shaders/initfields.comp"),
 m_setBoundary("../resources/shaders/setboundary.comp"),
+m_calcCurl("../resources/shaders/calccurl.comp"),
 
 m_velSlicer(m_velocity.getActive()),
 m_qvAndTempSlicer(m_qvAndTemp.getActive()),
@@ -29,6 +31,7 @@ m_debugOutSlicer(m_debugOut)
     m_applyPressureGrad.load();
     m_initProcess.load();
     m_setBoundary.load();
+    m_calcCurl.load();
 }
 CloudFluidSimulator::~CloudFluidSimulator()
 {
@@ -49,6 +52,15 @@ void CloudFluidSimulator::update(double delta)
     advectField(m_velocity, m_velocity.getNonActive(), delta);
     glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT | GL_TEXTURE_FETCH_BARRIER_BIT);
 
+    m_calcCurl.bind();
+    m_calcCurl.setUniform("inVelocity", 1);
+    m_calcCurl.setUniform("outCurl", 0);
+    m_velocity.getNonActive().bind(GL_TEXTURE1);
+    glBindImageTexture(0, m_curl.id(), 0, false, 0, GL_WRITE_ONLY, m_curl.info().internalFormat);
+    m_calcCurl.dispatch(glm::uvec3(m_curl.width()/8, m_curl.height()/8, m_curl.depth()/8));
+    glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT | GL_TEXTURE_FETCH_BARRIER_BIT);
+
+
     //{//applyforces.comp
         //compute buoyant force
         //compute vorticity confinement
@@ -58,13 +70,18 @@ void CloudFluidSimulator::update(double delta)
     m_velocity.getNonActive().bind(GL_TEXTURE1);
     m_qc.getNonActive().bind(GL_TEXTURE2);
     m_qvAndTemp.getNonActive().bind(GL_TEXTURE3);
+    m_curl.bind(GL_TEXTURE4);
     m_applyForces.setUniform("delta", (float)delta);
     m_applyForces.setUniform("baseTemperature", m_baseTemp);
     m_applyForces.setUniform("inVelField", 1);
     m_applyForces.setUniform("inqc", 2);
     m_applyForces.setUniform("inqvAndTemp", 3);
+    m_applyForces.setUniform("incurl", 4);
+    m_applyForces.setUniform("vortStr", m_vortStr);
+
     m_applyForces.setUniform("inVelField", 1);
     m_applyForces.setUniform("outVelField", 0);
+
     glBindImageTexture(0, m_velocity.getActive().id(), 0, false, 0, GL_WRITE_ONLY, m_velocity.getActive().info().internalFormat);
     m_applyForces.dispatch(glm::uvec3(m_velocity.getActive().width()/8, m_velocity.getActive().height()/8, m_velocity.getActive().depth()/8));
     m_velocity.swap();
@@ -73,7 +90,7 @@ void CloudFluidSimulator::update(double delta)
     //{//updatetempandwater.comp
         //update qc,qv
         //update temp
-
+    
     m_updateWaterAndTemp.bind();
     m_updateWaterAndTemp.setUniform("baseTemperature", m_baseTemp);
     m_updateWaterAndTemp.setUniform("delta", (float)delta);
@@ -227,7 +244,6 @@ eng::rndr::Texture3d &CloudFluidSimulator::getField(std::string_view identifier)
 }
 void CloudFluidSimulator::drawUI()
 {
-    
     ImGui::Begin("Fluid Sim");
     ImGui::SliderInt("Slice", &m_debugSlice, 0, m_qc.getActive().depth()-1);
     m_velSlicer.update(m_debugSlice);
@@ -235,7 +251,6 @@ void CloudFluidSimulator::drawUI()
     ImGui::Image((void*)(intptr_t)m_velSlicer.getSlice()->id(), {(float)128.f, (float)128.f});
     m_qcSlicer.update(m_debugSlice);
     ImGui::LabelText("qc:", "");
-
     ImGui::Image((void*)(intptr_t)m_qcSlicer.getSlice()->id(), {(float)128.f, (float)128.f});
     m_qvAndTempSlicer.update(m_debugSlice);
     ImGui::LabelText("qvandtemp:", "");
@@ -250,6 +265,7 @@ void CloudFluidSimulator::drawUI()
     ImGui::LabelText("collision:", "");
     ImGui::Image((void*)(intptr_t)m_collisionFieldSlicer->getSlice()->id(), {(float)128.f, (float)128.f});
 
+
     m_debugOutSlicer.update(m_debugSlice);
     ImGui::LabelText("debug out:", "");
     ImGui::Image((void*)(intptr_t)m_debugOutSlicer.getSlice()->id(), {(float)128.f, (float)128.f});
@@ -263,8 +279,9 @@ void CloudFluidSimulator::drawUI()
     ImGui::SliderFloat("Bottom QV", &m_bottomQV, 0, 4);
     ImGui::SliderAngle("Wind Dir", &m_windAngle);
     ImGui::SliderFloat("Wind Str", &m_windStr, 0, .2);
-    ImGui::SliderInt("Pressure Solve itrs", (int*)&m_pressureItrs, 0, 40);
+    ImGui::SliderFloat("Vort Str", &m_vortStr, 0, 1024*16);
 
+    ImGui::SliderInt("Pressure Solve itrs", (int*)&m_pressureItrs, 0, 40);
 
     if(ImGui::Button(("Reset")))
     {
@@ -274,7 +291,6 @@ void CloudFluidSimulator::drawUI()
     ImGui::End();
 
 }
-
 void CloudFluidSimulator::init()
 {
     initFields();

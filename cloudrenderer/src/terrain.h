@@ -32,6 +32,7 @@ class Terrain : public eng::Object
     private:
         struct Vert
         {
+            
             glm::vec4 position;
             glm::vec4 normal;
             glm::vec4 uv;
