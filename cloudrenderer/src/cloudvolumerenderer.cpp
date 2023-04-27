@@ -94,7 +94,6 @@ void CloudVolumeRenderer::drawUI()
     ImGui::SliderFloat("Light Step Size", &m_lightStepSize, .2, 20.);
     ImGui::SliderFloat("Light Far", &m_lightFar, 0., 50.);
     ImGui::SliderFloat("Light Dens Mult", &m_lightDensMult, 0., 15.);
-    ImGui::SliderFloat("Light Dens Mult", &m_lightDensMult, 0., 15.);
     if(ImGui::SliderFloat("Cloud Render Scale", &m_cloudResMult, 0., 1.))
     {
         glGetIntegerv( GL_VIEWPORT, &m_origViewport.x );

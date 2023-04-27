@@ -4,6 +4,7 @@ in vec4 normal;
 in vec4 position;
 in vec2 texCoords;
 uniform sampler2D colourMap;
+
 uniform vec3 lightDir;
 uniform vec3 lightCol;
 uniform vec3 ambientCol;
