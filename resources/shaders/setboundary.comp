@@ -21,7 +21,7 @@ uniform float baseTemperature = 200.;
 uniform float bottomTemp = 10;
 uniform float bottomQv = 20.;
 uniform int size = 0;
-uniform float noiseScale = 2.;
+uniform float noiseScale = 20.;
 uniform float time = 0.;
 void main()
 {
