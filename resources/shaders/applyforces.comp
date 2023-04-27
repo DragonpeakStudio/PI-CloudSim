@@ -8,9 +8,8 @@ uniform sampler3D inqc;
 uniform sampler3D inqvAndTemp;
 
 
-
 uniform float delta;
-uniform float baseTemperature = 300.;
+uniform float baseTemperature = 200.;
 const float GRAVITY = 9.81;
 float calcBuoyancy(float qc, float qv, float temp)
 {
@@ -28,7 +27,7 @@ void main()
     vec4 qvAndTemp = texture(inqvAndTemp, pos);
 
     vec3 newForces = vec3(0);
-    newForces -= vec3(0,0,1)*calcBuoyancy(qc.x, qvAndTemp.x, qvAndTemp.y)/res.z;
+    newForces -= delta*vec3(0,0,1)*calcBuoyancy(qc.x, qvAndTemp.x, qvAndTemp.y)/res.z;
 
     imageStore(outVelField, ivec3(gl_GlobalInvocationID.xyz), texture(inVelField, pos)+vec4(newForces,0)*delta);
 

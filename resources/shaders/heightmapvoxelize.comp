@@ -9,12 +9,24 @@ uniform vec3 bboxMax;
 void main()
 {
     vec4 data = vec4(0);
-    ivec3 size = imageSize(result);
+    vec3 res = vec3(gl_WorkGroupSize*gl_NumWorkGroups);
     vec3 pos = vec3(gl_GlobalInvocationID.xyz);//TODO proper support for differently sized terrains
-    pos.z += bboxMin.z;
-    if(texture(heightMap, pos.xy/vec3(size).xy).x > pos.z)
+    pos.z = (1.-pos.z/float(res.z))*(bboxMax.z-bboxMin.z)+bboxMin.z;
+    if(texture(heightMap, -pos.xy/res.xy).x > (pos.z))
     {
-        data = vec4(1);
+        float z0 = textureOffset(heightMap, -pos.xy/res.xy, ivec2(-1,-1)).x;
+        float z1 = textureOffset(heightMap, -pos.xy/res.xy, ivec2(0,-1)).x;
+        float z2 = textureOffset(heightMap, -pos.xy/res.xy, ivec2(1,-1)).x;
+        float z3 = textureOffset(heightMap, -pos.xy/res.xy, ivec2(-1,0)).x;
+        float z4 = textureOffset(heightMap, -pos.xy/res.xy, ivec2(1,0)).x;
+        float z5 = textureOffset(heightMap, -pos.xy/res.xy, ivec2(-1,1)).x;
+        float z6 = textureOffset(heightMap, -pos.xy/res.xy, ivec2(0,1)).x;
+        float z7 = textureOffset(heightMap, -pos.xy/res.xy, ivec2(1,1)).x;
+        data.z = 1.;
+        data.x = -(z2 + 2*z4 + z7 - z0 - 2*z3 - z5);
+        data.y = -(z5 + 2*z6 + z7 -z0 - 2*z1 - z2);
+        data.xyz = normalize(data.xyz);
+        data.w = 1;
     }
-    imageStore(result, ivec3(gl_GlobalInvocationID.xyz), data);
+    imageStore(result, ivec3(gl_GlobalInvocationID.xyz), vec4(data));
 }

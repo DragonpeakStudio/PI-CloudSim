@@ -34,6 +34,7 @@ int Texture3d::depth() const
     return m_depth;
 }
 
+
 int Texture3d::width() const
 {
     return m_width;

@@ -11,9 +11,9 @@ uniform sampler3D inqvAndTemp;
 uniform sampler3D inqc;
 
 uniform float basePressure = 100.;
-uniform float baseTemperature = 300.;
-uniform float altitudeOffset = 100.;
-uniform float altitudeScale = 1000.;
+uniform float baseTemperature = 200.;
+uniform float altitudeOffset = 0.;
+uniform float altitudeScale = 1000000.;
 const float RD = 287.;
 const float LAPSE_RATE = 1.;
 const float GRAVITY = 9.81;
@@ -33,7 +33,7 @@ float calcQVS(float temp, float pressure)
 {
     temp = max(temp, 0.01);
     temp-=273.15;//to Celsius
-    //pressure*=1000;//kPa to pa
+    pressure*=1000;//kPa to pa
     return (380.16/pressure)*exp((17.67*temp)/(temp+243.5));
 }
 void main()

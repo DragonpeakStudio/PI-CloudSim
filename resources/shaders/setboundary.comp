@@ -8,18 +8,20 @@ layout (binding = 2) writeonly restrict uniform image3D outqvAndTemp;
 uniform sampler3D inVelocity; 
 uniform sampler3D inqvAndTemp; 
 uniform sampler3D inqc; 
+uniform sampler3D incollision; 
+
 
 
 #include "lib/rand.slib"
 #include "lib/noise.slib"
 
 uniform int side = 0;
-uniform vec2 windValue = vec2(.1, .1);
-uniform float baseTemperature = 300.;
+uniform vec2 windValue = vec2(.05, .05);
+uniform float baseTemperature = 200.;
 uniform float bottomTemp = 10;
-uniform float bottomQv = .1;
+uniform float bottomQv = 20.;
 uniform int size = 0;
-uniform float noiseScale = 20.;
+uniform float noiseScale = 2.;
 uniform float time = 0.;
 void main()
 {
@@ -43,47 +45,51 @@ void main()
     //no slip
     //qv and temp user defined with randomness
 
-    if(ipos.z == res.z-1)//bottom
-    {
-        imageStore(outVelocity, ivec3(ipos), vec4(0));
-        imageStore(outqc, ivec3(ipos), vec4(0));
-        
-
-        float qv = bottomQv*clamp(noise3D(vec3(pos.xy*noiseScale, time)), 0., 1.);
-        float temp = baseTemperature+bottomTemp*clamp(noise3D(vec3(pos.xy*noiseScale, 123123+time)), 0., 1.);
-        imageStore(outqvAndTemp, ivec3(ipos), vec4(qv, temp,0,0));//TODO randomness
-    }
-    else if(ipos.z == 0)//top
+    if(ipos.z == 0)//top
     {
         imageStore(outqc, ivec3(ipos), vec4(0));
         imageStore(outqvAndTemp, ivec3(ipos), vec4(0, baseTemperature, 0,0));
         imageStore(outVelocity, ivec3(ipos), vec4(texture(inVelocity, vec3(pos.xy, 0)).xy, 0, 0));
     }
-    else if(ipos.x == 0 || ipos.x == res.x-1 || ipos.y == 0 || ipos.y == res.y-1)//side
+    if(ipos.x == 0 || ipos.x == res.x-1 || ipos.y == 0 || ipos.y == res.y-1)//side
     {
-        vec3 altPos3 = vec3(0);
+        ivec3 apos = ipos;
         if(ipos.x == 0)
         {
-            altPos3 = vec3(res.x-2, pos.y, ipos.z)/vec3(res);
+            apos.x -=2;
         }
-        else if(ipos.x == res.x-1)
+        if(ipos.x == int(res.x))
         {
-            altPos3 = vec3(1, pos.y, ipos.z)/vec3(res);
+            apos.x +=2;
         }
         if(ipos.y == 0)
         {
-            altPos3 = vec3(pos.x, res.y-2, ipos.z)/vec3(res);
+            apos.y -=2;
         }
-        else if(ipos.y == res.x-1)
+        if(ipos.y == int(res.y))
         {
-            altPos3 = vec3(pos.x, 1, ipos.z)/vec3(res);
-        }//why won'y you just work!
-        float qc = texture(inqc, vec3(altPos3)).x;
-        imageStore(outqc, ipos, vec4(qc));
+            apos.y +=2;
+        }
+        apos=apos%ivec3(res);
+        vec4 otherqvAndTemp = texture(inqvAndTemp, vec3(apos)/res);
         imageStore(outVelocity, ipos, vec4(windValue, 0, 0));
-        float qv = texture(inqvAndTemp, vec3(altPos3)).x;
-        imageStore(outqvAndTemp, ipos, vec4(qv, baseTemperature,0,0));
+        imageStore(outqvAndTemp, ipos, vec4(otherqvAndTemp.x, baseTemperature,0,0));
+    }
+    vec4 col = texture(incollision, pos);
+    if(col.w>0)//collision 
+    {
+        imageStore(outqc, ipos, vec4(0));
+        imageStore(outVelocity, ipos, vec4(0,0,0, 0));
+        imageStore(outqvAndTemp, ipos, vec4(0, 0,0,0));
+    }
+    vec4 col1 = texture(incollision, (vec3(gl_GlobalInvocationID.xyz)+.5+vec3(0,0,1))/res);
+    if(col1.w > 0.)//just above collision
+    {
+        vec3 vel = texture(inVelocity, pos).xyz;
+        imageStore(outVelocity, ipos, vec4(vel-dot(vel,col1.xyz)*col1.xyz, 0));
 
+        imageStore(outqvAndTemp, ipos, vec4(bottomQv*noise3D(pos*noiseScale+time), baseTemperature+(bottomTemp*noise3D(pos*noiseScale+time+4124.151)/2.)+bottomTemp/2.,0,0));
+        
     }
     
 }

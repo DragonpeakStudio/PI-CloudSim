@@ -55,10 +55,10 @@ float linearizeDepth(float d,float zNear,float zFar)//https://stackoverflow.com/
 float getDensity(vec3 p)
 {
     float d = texture(densityField, fract((p-bboxMin)/(bboxMin-bboxMax)*.99)).x;
-//    if(d>0.)
-//    {
-//        d-=fBm(p*.1, 4)*.2;
-//    }
+    if(d>0.)
+    {
+        d-=fBm(p*.1, 4)*.2;
+    }
     return max(d, 0.)*densMult;
 }
 vec3 marchLight(Ray r, float near, float far)

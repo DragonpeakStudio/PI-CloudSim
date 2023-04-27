@@ -59,6 +59,7 @@ void CloudFluidSimulator::update(double delta)
     m_qc.getNonActive().bind(GL_TEXTURE2);
     m_qvAndTemp.getNonActive().bind(GL_TEXTURE3);
     m_applyForces.setUniform("delta", (float)delta);
+    m_applyForces.setUniform("baseTemperature", m_baseTemp);
     m_applyForces.setUniform("inVelField", 1);
     m_applyForces.setUniform("inqc", 2);
     m_applyForces.setUniform("inqvAndTemp", 3);
@@ -74,6 +75,7 @@ void CloudFluidSimulator::update(double delta)
         //update temp
 
     m_updateWaterAndTemp.bind();
+    m_updateWaterAndTemp.setUniform("baseTemperature", m_baseTemp);
     m_updateWaterAndTemp.setUniform("delta", (float)delta);
     m_updateWaterAndTemp.setUniform("outqvAndTemp", 0);
     m_updateWaterAndTemp.setUniform("outqc", 1);
@@ -92,15 +94,23 @@ void CloudFluidSimulator::update(double delta)
     //}
         //setboundary
     m_setBoundary.bind();
+    m_setBoundary.setUniform("baseTemperature", m_baseTemp);
     m_setBoundary.setUniform("outVelocity", 0);
     m_setBoundary.setUniform("outqc", 1);
     m_setBoundary.setUniform("outqvAndTemp", 2);
     m_setBoundary.setUniform("inVelocity", 3);
     m_setBoundary.setUniform("inqvAndTemp", 4);
     m_setBoundary.setUniform("inqc", 5);
+    m_setBoundary.setUniform("incollision", 6);
+    m_setBoundary.setUniform("bottomTemp", m_bottomTempOffset);
+    m_setBoundary.setUniform("bottomQv", m_bottomQV);
+    m_setBoundary.setUniform("windValue", glm::vec2(cos(m_windAngle), sin(m_windAngle))*m_windStr);
+
     m_velocity.getNonActive().bind(GL_TEXTURE3);
     m_qvAndTemp.getNonActive().bind(GL_TEXTURE4);
     m_qc.getNonActive().bind(GL_TEXTURE5);
+    m_collisionField->bind(GL_TEXTURE6);
+
     glBindImageTexture(0, m_velocity.getNonActive().id(), 0, false, 0, GL_WRITE_ONLY, m_velocity.getNonActive().info().internalFormat);//not swapping textures bcause not writing to all
     glBindImageTexture(1, m_qc.getNonActive().id(), 0, false, 0, GL_WRITE_ONLY, m_qc.getNonActive().info().internalFormat);
     glBindImageTexture(2, m_qvAndTemp.getNonActive().id(), 0, false, 0, GL_WRITE_ONLY, m_qvAndTemp.getNonActive().info().internalFormat);
@@ -127,7 +137,11 @@ void CloudFluidSimulator::update(double delta)
         m_pressureItr.bind();
         m_pressureItr.setUniform("outPressureAndDivergence", 0);
         m_pressureItr.setUniform("inPressureAndDivergence", 1);
+        m_pressureItr.setUniform("inCollision", 2);
+
         m_pressureAndDivergence.getNonActive().bind(GL_TEXTURE1);
+        m_collisionField->bind(GL_TEXTURE2);
+
         glBindImageTexture(0, m_pressureAndDivergence.getActive().id(), 0, false, 0, GL_WRITE_ONLY, m_pressureAndDivergence.getActive().info().internalFormat);
         m_pressureItr.dispatch(glm::uvec3(m_pressureAndDivergence.getActive().width()/8, m_pressureAndDivergence.getActive().height()/8, m_pressureAndDivergence.getActive().depth()/8));
         m_pressureAndDivergence.swap();
@@ -140,8 +154,12 @@ void CloudFluidSimulator::update(double delta)
     m_applyPressureGrad.setUniform("outVelocity", 0);
     m_applyPressureGrad.setUniform("inVelocity", 1);
     m_applyPressureGrad.setUniform("inPressureAndDivergence", 2);
+    m_applyPressureGrad.setUniform("inCollision", 3);
+
     m_velocity.getNonActive().bind(GL_TEXTURE1);
     m_pressureAndDivergence.getNonActive().bind(GL_TEXTURE2);
+    m_collisionField->bind(GL_TEXTURE3);
+
     glBindImageTexture(0, m_velocity.getActive().id(), 0, false, 0, GL_WRITE_ONLY, m_velocity.getActive().info().internalFormat);
     m_applyPressureGrad.dispatch(glm::uvec3(m_velocity.getActive().width()/8, m_velocity.getActive().height()/8, m_velocity.getActive().depth()/8));
     m_velocity.swap();
@@ -172,6 +190,8 @@ void CloudFluidSimulator::initFields()
     m_initProcess.setUniform("outVelocity", 0);
     m_initProcess.setUniform("outqc", 1);
     m_initProcess.setUniform("outqvAndTemp", 2);
+    m_initProcess.setUniform("baseTemperature", m_baseTemp);
+
     glBindImageTexture(0, m_velocity.getActive().id(), 0, false, 0, GL_WRITE_ONLY, m_velocity.getActive().info().internalFormat);
     glBindImageTexture(1, m_qc.getActive().id(), 0, false, 0, GL_WRITE_ONLY, m_qc.getActive().info().internalFormat);
     glBindImageTexture(2, m_qvAndTemp.getActive().id(), 0, false, 0, GL_WRITE_ONLY, m_qvAndTemp.getActive().info().internalFormat);
@@ -187,6 +207,8 @@ eng::rndr::Texture3d &CloudFluidSimulator::getField(std::string_view identifier)
 {
     if(identifier=="density")
     {
+        //return *m_collisionField.get();
+        
         return m_qc.getActive();
     }
     else if (identifier=="velocity")
@@ -205,7 +227,7 @@ eng::rndr::Texture3d &CloudFluidSimulator::getField(std::string_view identifier)
 }
 void CloudFluidSimulator::drawUI()
 {
-
+    
     ImGui::Begin("Fluid Sim");
     ImGui::SliderInt("Slice", &m_debugSlice, 0, m_qc.getActive().depth()-1);
     m_velSlicer.update(m_debugSlice);
@@ -234,6 +256,21 @@ void CloudFluidSimulator::drawUI()
 
     ImGui::Checkbox("Step By Step", &m_stepByStep);
     m_update = ImGui::Button("Step");
+    ImGui::End();
+    ImGui::Begin("Sim Params");
+    ImGui::SliderFloat("Base Temp (K)", &m_baseTemp, 200, 600);
+    ImGui::SliderFloat("Bottom Temp Offset (K)", &m_bottomTempOffset, -300, 300);
+    ImGui::SliderFloat("Bottom QV", &m_bottomQV, 0, 4);
+    ImGui::SliderAngle("Wind Dir", &m_windAngle);
+    ImGui::SliderFloat("Wind Str", &m_windStr, 0, .2);
+    ImGui::SliderInt("Pressure Solve itrs", (int*)&m_pressureItrs, 0, 40);
+
+
+    if(ImGui::Button(("Reset")))
+    {
+        initFields();
+    }
+
     ImGui::End();
 
 }
