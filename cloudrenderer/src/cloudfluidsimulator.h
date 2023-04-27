@@ -61,10 +61,8 @@ class CloudFluidSimulator : public CloudSimulator
         float m_bottomTempOffset = 100.;
         float m_windAngle = 0;
         float m_windStr = 0.01;
-        float m_vortStr = 1024.*8.;
+        float m_vortStr = 16;
 
     
 };
-
-
 #endif

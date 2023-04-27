@@ -46,6 +46,33 @@ void CloudFluidSimulator::update(double delta)
     {
         return;
     }
+    //setboundary
+    m_setBoundary.bind();
+    m_setBoundary.setUniform("baseTemperature", m_baseTemp);
+    m_setBoundary.setUniform("outVelocity", 0);
+    m_setBoundary.setUniform("outqc", 1);
+    m_setBoundary.setUniform("outqvAndTemp", 2);
+    m_setBoundary.setUniform("inVelocity", 3);
+    m_setBoundary.setUniform("inqvAndTemp", 4);
+    m_setBoundary.setUniform("inqc", 5);
+    m_setBoundary.setUniform("incollision", 6);
+    m_setBoundary.setUniform("bottomTemp", m_bottomTempOffset);
+    m_setBoundary.setUniform("bottomQv", m_bottomQV);
+    m_setBoundary.setUniform("windValue", glm::vec2(cos(m_windAngle), sin(m_windAngle))*m_windStr);
+
+    m_velocity.getNonActive().bind(GL_TEXTURE3);
+    m_qvAndTemp.getNonActive().bind(GL_TEXTURE4);
+    m_qc.getNonActive().bind(GL_TEXTURE5);
+    m_collisionField->bind(GL_TEXTURE6);
+
+    glBindImageTexture(0, m_velocity.getNonActive().id(), 0, false, 0, GL_WRITE_ONLY, m_velocity.getNonActive().info().internalFormat);//not swapping textures bcause not writing to all
+    glBindImageTexture(1, m_qc.getNonActive().id(), 0, false, 0, GL_WRITE_ONLY, m_qc.getNonActive().info().internalFormat);
+    glBindImageTexture(2, m_qvAndTemp.getNonActive().id(), 0, false, 0, GL_WRITE_ONLY, m_qvAndTemp.getNonActive().info().internalFormat);
+    m_setBoundary.bind();
+    m_setBoundary.setUniform("time", m_time);
+    m_setBoundary.dispatch(glm::uvec3(m_velocity.getActive().width()/8, m_velocity.getActive().height()/8, m_velocity.getActive().depth()/8));
+    glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT | GL_TEXTURE_FETCH_BARRIER_BIT);
+    //}
     m_time+=delta;
     advectField(m_qvAndTemp, m_velocity.getNonActive(), delta);
     advectField(m_qc, m_velocity.getNonActive(), delta);
@@ -109,33 +136,7 @@ void CloudFluidSimulator::update(double delta)
     m_qc.swap();
     m_qvAndTemp.swap();
     //}
-        //setboundary
-    m_setBoundary.bind();
-    m_setBoundary.setUniform("baseTemperature", m_baseTemp);
-    m_setBoundary.setUniform("outVelocity", 0);
-    m_setBoundary.setUniform("outqc", 1);
-    m_setBoundary.setUniform("outqvAndTemp", 2);
-    m_setBoundary.setUniform("inVelocity", 3);
-    m_setBoundary.setUniform("inqvAndTemp", 4);
-    m_setBoundary.setUniform("inqc", 5);
-    m_setBoundary.setUniform("incollision", 6);
-    m_setBoundary.setUniform("bottomTemp", m_bottomTempOffset);
-    m_setBoundary.setUniform("bottomQv", m_bottomQV);
-    m_setBoundary.setUniform("windValue", glm::vec2(cos(m_windAngle), sin(m_windAngle))*m_windStr);
 
-    m_velocity.getNonActive().bind(GL_TEXTURE3);
-    m_qvAndTemp.getNonActive().bind(GL_TEXTURE4);
-    m_qc.getNonActive().bind(GL_TEXTURE5);
-    m_collisionField->bind(GL_TEXTURE6);
-
-    glBindImageTexture(0, m_velocity.getNonActive().id(), 0, false, 0, GL_WRITE_ONLY, m_velocity.getNonActive().info().internalFormat);//not swapping textures bcause not writing to all
-    glBindImageTexture(1, m_qc.getNonActive().id(), 0, false, 0, GL_WRITE_ONLY, m_qc.getNonActive().info().internalFormat);
-    glBindImageTexture(2, m_qvAndTemp.getNonActive().id(), 0, false, 0, GL_WRITE_ONLY, m_qvAndTemp.getNonActive().info().internalFormat);
-    m_setBoundary.bind();
-    m_setBoundary.setUniform("time", m_time);
-    m_setBoundary.dispatch(glm::uvec3(m_velocity.getActive().width()/8, m_velocity.getActive().height()/8, m_velocity.getActive().depth()/8));
-    glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT | GL_TEXTURE_FETCH_BARRIER_BIT);
-    //}
     //{//calcdivergence.comp
         //compute divergence
     m_calcDivergence.bind();
@@ -279,7 +280,7 @@ void CloudFluidSimulator::drawUI()
     ImGui::SliderFloat("Bottom QV", &m_bottomQV, 0, 4);
     ImGui::SliderAngle("Wind Dir", &m_windAngle);
     ImGui::SliderFloat("Wind Str", &m_windStr, 0, .2);
-    ImGui::SliderFloat("Vort Str", &m_vortStr, 0, 1024*16);
+    ImGui::SliderFloat("Vort Str", &m_vortStr, 0, 128);
 
     ImGui::SliderInt("Pressure Solve itrs", (int*)&m_pressureItrs, 0, 40);
 

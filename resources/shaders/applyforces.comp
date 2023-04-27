@@ -49,8 +49,8 @@ void main()
     vec4 qvAndTemp = texture(inqvAndTemp, pos);
 
     vec3 newForces = vec3(0);
-    newForces -= delta*vec3(0,0,1)*calcBuoyancy(qc.x, qvAndTemp.x, qvAndTemp.y)/res.z;
-    newForces += delta*((vorticityConfinement(pos))*vortStr)/res.z;
+    newForces -= delta*vec3(0,0,1)*calcBuoyancy(qc.x, qvAndTemp.x, qvAndTemp.y)/512.;
+    newForces += delta*((vorticityConfinement(pos))*vortStr);
 
 
     imageStore(outVelField, ivec3(gl_GlobalInvocationID.xyz), texture(inVelField, pos)+vec4(newForces,0)*delta);
