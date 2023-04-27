@@ -3,6 +3,8 @@ in vec2 texCoords;
 out vec4 FragColor;
 uniform sampler3D densityField;
 uniform sampler2D sceneDepth;
+uniform sampler2D lastFrame;
+
 
 uniform float stepSize = .5;
 uniform float lightStepSize = .1;
@@ -23,6 +25,9 @@ uniform mat4 invProjView;
 uniform ivec4 viewport;
 uniform float nearPlane = .1;
 uniform float farPlane = 1000.;
+
+uniform float lastFrameBlend = .5;
+
 
 
 uniform float time;
@@ -105,14 +110,17 @@ void main()
     vec2 position = texCoords*2.-1.;
     Ray r =  Ray(camPos.xyz, (invProjView*vec4(position, 0., 1.)).xyz);
     vec2 dist =  bboxIntersection(r, bboxMin, bboxMax);
-    FragColor = vec4(0);
+    vec4 dens = vec4(0);
     float sceneDist = linearizeDepth(texture(sceneDepth, texCoords).x, nearPlane, farPlane);
     if(dist.x <= dist.y && (dist.x > 0. || dist.y > 0.))
     {
         float nearDist = max(nearPlane, dist.x);
         float farDist = min(sceneDist, dist.y);
-        vec4 dens = marchClouds(r, nearDist+=fpcg3d(vec3(texCoords.xy*viewport.zw, time)).x*stepSize, farDist);//TODO use blue noise for better dithering
-        FragColor = vec4(dens);
+        dens = marchClouds(r, nearDist+=fpcg3d(vec3(texCoords.xy*viewport.zw, time)).x*stepSize, farDist);//TODO use blue noise for better dithering
+        dens.xyz*=(1.-lastFrameBlend);
+        dens.xyz += texture(lastFrame, texCoords).xyz*lastFrameBlend;
+        
     }
 
+    FragColor = vec4(dens);
 }

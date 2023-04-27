@@ -24,7 +24,11 @@ void FrameBuffer::init(unsigned int w, unsigned int h, GLint format)
 
     m_fboDepthTexture = std::make_unique<Texture2d>(nullptr, TextureInfo{GL_REPEAT, GL_REPEAT, GL_LINEAR, GL_LINEAR, GL_DEPTH_COMPONENT, 1, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE}, w, h);
 
-
+    if(m_fbo != 0)
+    {
+        glDeleteFramebuffers(1, &m_fbo);
+        m_fbo = 0;
+    }
     glGenFramebuffers(1, &m_fbo);
     glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
 
@@ -43,7 +47,6 @@ void FrameBuffer::init(unsigned int w, unsigned int h, GLint format)
     }
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
     glGenVertexArrays(1, &m_fsqVao);
     glBindVertexArray(m_fsqVao);
 

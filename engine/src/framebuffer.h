@@ -29,7 +29,7 @@ class FrameBuffer
 
 
     private:
-        GLuint m_fbo;
+        GLuint m_fbo = 0;
         std::unique_ptr<ShaderProgram> m_fboShader;
         std::unique_ptr<Texture2d> m_fboTexture;
         std::unique_ptr<Texture2d> m_fboDepthTexture;

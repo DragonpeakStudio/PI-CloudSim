@@ -16,7 +16,6 @@ class CloudVolumeRenderer : public CloudRenderer
         virtual void draw(eng::rndr::Texture3d &densityField, eng::rndr::Renderer &renderer) override;
         virtual void drawUI() override;
     private:
-        void generateNoiseKernal();
         GLuint m_vbo = 0;
         GLuint m_vao = 0;
         eng::rndr::VFShaderProgram m_drawShader;
@@ -27,7 +26,14 @@ class CloudVolumeRenderer : public CloudRenderer
         float m_lightDensMult = .4; 
         float m_densMult = 10.;
         float m_lightStepSize = 8.;
-        int m_debugSlice = 0;
         float m_time = 1.;
+        std::unique_ptr<eng::rndr::FrameBuffer> m_frameBuffer;
+        float m_cloudResMult = 0.8;
+        float m_lastFrameBlend = .5;
+        glm::ivec4 m_origViewport;
+        glm::ivec4 m_scaledViewport;
+        std::unique_ptr<eng::rndr::Texture2d> m_lastFrame;
+
+
 };
 #endif
