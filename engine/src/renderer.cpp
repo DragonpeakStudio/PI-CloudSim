@@ -21,12 +21,13 @@ Renderer::Renderer(RendererConfig config, Engine *eng) : m_window(config.width, 
 		throw std::runtime_error("Unable to Create GL Context");
 	}
 	glewExperimental = true;
+	
 	if(glewInit()!=GLEW_OK)
 	{
 		throw std::runtime_error("Unable to Init GLEW");
 	}
 	SDL_SetRelativeMouseMode(SDL_FALSE);
-	SDL_GL_SetSwapInterval(1);
+	SDL_GL_SetSwapInterval(0);
 	glEnable(GL_CULL_FACE);  
 	glEnable( GL_DEBUG_OUTPUT );
 	//glDebugMessageCallback( glMessageCallback, 0 );

@@ -20,14 +20,26 @@ void main()
     vec3 res = vec3(gl_WorkGroupSize*gl_NumWorkGroups);
     vec3 pos = (vec3(gl_GlobalInvocationID.xyz)+.5)/res;
     vec2 current = texture(inPressureAndDivergence, pos).xy;
-    if(texture(inCollision, pos).w > 0.)
+    vec4 col = texture(inCollision, pos); 
+    if(col.w > 0.)
     {
         return;
     }
     float xDif = (getSample(vec3(gl_GlobalInvocationID.xyz+vec3(1,0, 0)+.5)/res, current.x)-getSample(vec3(gl_GlobalInvocationID.xyz+vec3(-1,0, 0)+.5)/res, current.x))/2.;
     float yDif = (getSample(vec3(gl_GlobalInvocationID.xyz+vec3(0,1, 0)+.5)/res, current.x)-getSample(vec3(gl_GlobalInvocationID.xyz+vec3(0,-1, 0)+.5)/res, current.x))/2.;
     float zDif = (getSample(vec3(gl_GlobalInvocationID.xyz+vec3(0,0, 1)+.5)/res, current.x)-getSample(vec3(gl_GlobalInvocationID.xyz+vec3(0,0, -1)+.5)/res, current.x))/2.;
-
-    imageStore(outVelocity, ivec3(gl_GlobalInvocationID.xyz), vec4(vec3(texture(inVelocity, pos).xyz+vec3(xDif,yDif,zDif)),1));
+    vec4 col1 = textureOffset(inCollision, pos, ivec3(0,0,-1));
+    col1 += textureOffset(inCollision, pos, ivec3(0,0,1));
+    col1 += textureOffset(inCollision, pos, ivec3(0,1,0));
+    col1 += textureOffset(inCollision, pos, ivec3(0,-1,0));
+    col1 += textureOffset(inCollision, pos, ivec3(1,0,0));
+    col1 += textureOffset(inCollision, pos, ivec3(-1,0,0));
+    vec3 vel = texture(inVelocity, pos).xyz;
+    vel += vec3(xDif,yDif,zDif);
+    if(col1.w > 0. && length(vel) > .0001)//adjacent to collision
+    {
+        vel = vel-(dot(vel, col.xyz)*col.xyz);
+    }
+    imageStore(outVelocity, ivec3(gl_GlobalInvocationID.xyz), vec4(vel,1));
 
 }

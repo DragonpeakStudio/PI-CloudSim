@@ -7,7 +7,7 @@ m_qc(nullptr, eng::rndr::TextureInfo{GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_LINE
 m_pressureAndDivergence(nullptr, eng::rndr::TextureInfo{GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_LINEAR, GL_LINEAR, GL_RG, 2, GL_RG16F, GL_FLOAT}, (bbox.second.x-bbox.first.x)/voxelScale, (bbox.second.y-bbox.first.y)/voxelScale, (bbox.second.z-bbox.first.z)/voxelScale),
 m_curl(nullptr, eng::rndr::TextureInfo{GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_LINEAR, GL_LINEAR, GL_RGBA, 4, GL_RGBA16F, GL_FLOAT}, (bbox.second.x-bbox.first.x)/voxelScale, (bbox.second.y-bbox.first.y)/voxelScale, (bbox.second.z-bbox.first.z)/voxelScale),
 m_debugOut(nullptr, eng::rndr::TextureInfo{GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_LINEAR, GL_LINEAR, GL_RGBA, 4, GL_RGBA16F, GL_FLOAT}, (bbox.second.x-bbox.first.x)/voxelScale, (bbox.second.y-bbox.first.y)/voxelScale, (bbox.second.z-bbox.first.z)/voxelScale),
-m_advect("../resources/shaders/advect.comp"),
+m_advect("../resources/shaders/semiadvect.comp"),
 m_applyForces("../resources/shaders/applyforces.comp"),
 m_updateWaterAndTemp("../resources/shaders/updatewaterandtemp.comp"),
 m_calcDivergence("../resources/shaders/calcdivergence.comp"),
@@ -142,7 +142,10 @@ void CloudFluidSimulator::update(double delta)
     m_calcDivergence.bind();
     m_calcDivergence.setUniform("outPressureAndDivergence", 0);
     m_calcDivergence.setUniform("inVelocity", 1);
+    m_calcDivergence.setUniform("inCollision", 2);
+
     m_velocity.getNonActive().bind(GL_TEXTURE1);
+    m_collisionField->bind(GL_TEXTURE2);
     glBindImageTexture(0, m_pressureAndDivergence.getActive().id(), 0, false, 0, GL_WRITE_ONLY, m_pressureAndDivergence.getActive().info().internalFormat);
     m_calcDivergence.dispatch(glm::uvec3(m_pressureAndDivergence.getActive().width()/8, m_pressureAndDivergence.getActive().height()/8, m_pressureAndDivergence.getActive().depth()/8));
     m_pressureAndDivergence.swap();
@@ -159,7 +162,6 @@ void CloudFluidSimulator::update(double delta)
 
         m_pressureAndDivergence.getNonActive().bind(GL_TEXTURE1);
         m_collisionField->bind(GL_TEXTURE2);
-
         glBindImageTexture(0, m_pressureAndDivergence.getActive().id(), 0, false, 0, GL_WRITE_ONLY, m_pressureAndDivergence.getActive().info().internalFormat);
         m_pressureItr.dispatch(glm::uvec3(m_pressureAndDivergence.getActive().width()/8, m_pressureAndDivergence.getActive().height()/8, m_pressureAndDivergence.getActive().depth()/8));
         m_pressureAndDivergence.swap();
@@ -173,6 +175,7 @@ void CloudFluidSimulator::update(double delta)
     m_applyPressureGrad.setUniform("inVelocity", 1);
     m_applyPressureGrad.setUniform("inPressureAndDivergence", 2);
     m_applyPressureGrad.setUniform("inCollision", 3);
+
 
     m_velocity.getNonActive().bind(GL_TEXTURE1);
     m_pressureAndDivergence.getNonActive().bind(GL_TEXTURE2);
@@ -195,9 +198,11 @@ void CloudFluidSimulator::advectField(Swappable3DTexture &field, eng::rndr::Text
     m_advect.setUniform("delta", delta);
     field.getNonActive().bind(GL_TEXTURE1);
     velField.bind(GL_TEXTURE2);
+    m_collisionField->bind(GL_TEXTURE3);
     m_advect.setUniform("outField", 0);
     m_advect.setUniform("inField", 1);
     m_advect.setUniform("velocityField", 2);
+    m_advect.setUniform("inCollision", 3);
     glBindImageTexture(0, field.getActive().id(), 0, false, 0, GL_WRITE_ONLY, field.getActive().info().internalFormat);
     m_advect.dispatch(glm::uvec3(field.getActive().width()/8, field.getActive().height()/8, field.getActive().depth()/8));
     field.swap();

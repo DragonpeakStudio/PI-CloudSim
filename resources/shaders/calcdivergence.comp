@@ -5,16 +5,26 @@ layout (binding = 0) writeonly restrict uniform image3D outPressureAndDivergence
 
 
 uniform sampler3D inVelocity;
+uniform sampler3D inCollision;
 
 uniform float delta;
+
+vec4 getSample(vec3 pos)
+{
+    if(texture(inCollision, pos).w > 0.)
+    {
+        return vec4(0);
+    }
+    return texture(inVelocity, pos);
+}
 
 void main()
 {
     vec3 res = vec3(gl_WorkGroupSize*gl_NumWorkGroups);
 
-    float xDif = (texture(inVelocity, vec3(gl_GlobalInvocationID.xyz+vec3(1,0, 0)+.5)/res).x-texture(inVelocity, vec3(gl_GlobalInvocationID.xyz+vec3(-1,0, 0)+.5)/res).x)/2.;
-    float yDif = (texture(inVelocity, vec3(gl_GlobalInvocationID.xyz+vec3(0,1, 0)+.5)/res).y-texture(inVelocity, vec3(gl_GlobalInvocationID.xyz+vec3(0,-1, 0)+.5)/res).y)/2.;
-    float zDif = (texture(inVelocity, vec3(gl_GlobalInvocationID.xyz+vec3(0,0, 1)+.5)/res).z-texture(inVelocity, vec3(gl_GlobalInvocationID.xyz+vec3(0,0, -1)+.5)/res).z)/2.;
+    float xDif = (getSample(vec3(gl_GlobalInvocationID.xyz+vec3(1,0, 0)+.5)/res).x-getSample(vec3(gl_GlobalInvocationID.xyz+vec3(-1,0, 0)+.5)/res).x)/2.;
+    float yDif = (getSample(vec3(gl_GlobalInvocationID.xyz+vec3(0,1, 0)+.5)/res).y-getSample(vec3(gl_GlobalInvocationID.xyz+vec3(0,-1, 0)+.5)/res).y)/2.;
+    float zDif = (getSample(vec3(gl_GlobalInvocationID.xyz+vec3(0,0, 1)+.5)/res).z-getSample(vec3(gl_GlobalInvocationID.xyz+vec3(0,0, -1)+.5)/res).z)/2.;
 
     imageStore(outPressureAndDivergence, ivec3(gl_GlobalInvocationID.xyz), vec4(0,xDif+yDif+zDif,0,0));
 
