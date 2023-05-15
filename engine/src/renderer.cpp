@@ -69,7 +69,6 @@ void Renderer::dispatchFrame()
 	m_frameBuffer.clear();
     glClear(GL_COLOR_BUFFER_BIT);
 	drawUI();//draw our ui anyway, so we can see fps and that
-
 	if(m_isUiShown)
 	{
 		for(auto & i : m_drawables)
@@ -77,8 +76,8 @@ void Renderer::dispatchFrame()
 			i->drawUI();
 		}
 	}
+	
     m_frameBuffer.bind();
-
 	for(auto & i : m_drawables)
 	{
 		i->draw(*this);

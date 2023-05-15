@@ -92,7 +92,7 @@ void main()
     {
         vec3 vel = texture(inVelocity, pos).xyz;
     
-        imageStore(outqvAndTemp, ipos, vec4(bottomQv*noise3D(pos*noiseScale+time)*(1.-pos.z), baseTemperature+((bottomTemp*noise3D(pos*noiseScale+time+4124.151)/2.)+bottomTemp/2.)*(1.-pos.z),0,0));
+        imageStore(outqvAndTemp, ipos, vec4(bottomQv*(pos.z), baseTemperature+bottomTemp*(pos.z),0,0));
         
     }
     

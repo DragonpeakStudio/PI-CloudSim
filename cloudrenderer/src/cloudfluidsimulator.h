@@ -62,7 +62,7 @@ class CloudFluidSimulator : public CloudSimulator
         float m_windAngle = 0;
         float m_windStr = 0.01;
         float m_vortStr = 16;
+        float m_buoyStr = 4;
 
-    
 };
 #endif

@@ -105,6 +105,8 @@ void CloudFluidSimulator::update(double delta)
     m_applyForces.setUniform("inqvAndTemp", 3);
     m_applyForces.setUniform("incurl", 4);
     m_applyForces.setUniform("vortStr", m_vortStr);
+    m_applyForces.setUniform("buoyStr", m_buoyStr);
+
 
     m_applyForces.setUniform("inVelField", 1);
     m_applyForces.setUniform("outVelField", 0);
@@ -192,6 +194,7 @@ void CloudFluidSimulator::setCollisionField(std::unique_ptr<eng::rndr::Texture3d
     m_collisionField = std::move(collisionField);
     m_collisionFieldSlicer = std::make_unique<Texture3dSlicer>(*m_collisionField.get());
 }
+
 void CloudFluidSimulator::advectField(Swappable3DTexture &field, eng::rndr::Texture3d &velField, float delta)
 {
     m_advect.bind();
@@ -207,6 +210,7 @@ void CloudFluidSimulator::advectField(Swappable3DTexture &field, eng::rndr::Text
     m_advect.dispatch(glm::uvec3(field.getActive().width()/8, field.getActive().height()/8, field.getActive().depth()/8));
     field.swap();
 }
+
 void CloudFluidSimulator::initFields()
 {
     m_initProcess.bind();
@@ -286,6 +290,8 @@ void CloudFluidSimulator::drawUI()
     ImGui::SliderAngle("Wind Dir", &m_windAngle);
     ImGui::SliderFloat("Wind Str", &m_windStr, 0, .2);
     ImGui::SliderFloat("Vort Str", &m_vortStr, 0, 128);
+    ImGui::SliderFloat("Buoy Str", &m_buoyStr, 0, 16);
+
 
     ImGui::SliderInt("Pressure Solve itrs", (int*)&m_pressureItrs, 0, 40);
 

@@ -35,6 +35,6 @@ void main()
     float p5 = getSample( vec3(gl_GlobalInvocationID.xyz+vec3(0,0,-1)+.5)/res, current.x);
     float p6 = getSample( vec3(gl_GlobalInvocationID.xyz+vec3(0,0,1)+.5)/res, current.x);
 
-    float pressure = (current.y+p1+p2+p3+p4+p5+p6)/6.;
+    float pressure = (p1+p2+p3+p4+p5+p6-current.y)/6.;
     imageStore(outPressureAndDivergence, ivec3(gl_GlobalInvocationID.xyz), vec4(pressure, current.y,0,0));
 }

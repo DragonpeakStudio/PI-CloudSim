@@ -11,6 +11,8 @@ uniform float vortStr = 0.;
 
 uniform float delta;
 uniform float baseTemperature = 200.;
+uniform float buoyStr = 1.;
+
 const float GRAVITY = 9.81;
 float gradient(vec3 pos, ivec3 offset)
 {
@@ -49,7 +51,7 @@ void main()
     vec4 qvAndTemp = texture(inqvAndTemp, pos);
 
     vec3 newForces = vec3(0);
-    newForces -= delta*vec3(0,0,1)*calcBuoyancy(qc.x, qvAndTemp.x, qvAndTemp.y)/512.;
+    newForces -= (delta*vec3(0,0,1)*calcBuoyancy(qc.x, qvAndTemp.x, qvAndTemp.y)*buoyStr)/128;
     newForces += delta*((vorticityConfinement(pos))*vortStr);
 
 
