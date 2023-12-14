@@ -1,3 +1,7 @@
+#Note
+This project was created for a university assignment. Due to technical issues and time restrictions the code quality is not up to the level I would have liked.
+The program is an implementation of a realtime cloud simulation and rendering system, a partially functional landscape collision system. 
+#Description
 # Running and Building
 ## Requirements 
 Requires minimum c++ 17.
