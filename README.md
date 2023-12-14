@@ -1,6 +1,6 @@
-#Note
+# Note
 This project was created for a university assignment. Due to technical issues and time restrictions the code quality is not up to the level I would have liked.
-The program is an implementation of a realtime cloud simulation and rendering system, a partially functional landscape collision system. 
+The program is an implementation of a realtime cloud simulation and rendering system and a partially functional landscape collision system. The simulation is based on https://www.researchgate.net/publication/221249075_Simulation_of_cloud_dynamics_on_graphics_hardware and the rendering uses a basic raymarching based approach.
 #Description
 # Running and Building
 ## Requirements 
